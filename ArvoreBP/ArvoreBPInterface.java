@@ -26,6 +26,6 @@ public interface ArvoreBPInterface {
 
     int profundidade(No no);
 
-    Object replace(No no, Object o);
+    int replace(No no, int value);
     
 }
