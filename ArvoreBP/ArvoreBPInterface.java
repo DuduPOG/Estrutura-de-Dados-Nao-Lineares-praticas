@@ -6,8 +6,6 @@ public interface ArvoreBPInterface {
 
     int altura();
 
-    boolean isEmpty();
-
     Iterator elements();
 
     Iterator nos();
@@ -16,11 +14,13 @@ public interface ArvoreBPInterface {
 
     No pai();
 
-    Iterator filhos();
+    void inserir(int value);
 
-    boolean ehInterno();
+    void remover(int value);
 
-    boolean ehExterno();
+    boolean ehInterno(No no);
+
+    boolean ehExterno(No no);
 
     boolean ehRaiz();
 

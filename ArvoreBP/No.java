@@ -1,3 +1,9 @@
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+
+
 public class No {
 
     private No pai;
@@ -5,10 +11,10 @@ public class No {
     private int value;
     private No FD;
 
-    public No(){
-        this.pai = null;
+    public No(No pai, int value){
+        this.pai = pai;
         this.FE = null;
-        this.value = 0;
+        this.value = value;
         this.FD = null;
     }
 
@@ -42,6 +48,17 @@ public class No {
 
     public void setFD(No FD) {
         this.FD = FD;
+    }
+
+    public Iterator<No> filhos(){
+        ArrayList<No> filhos = new ArrayList<>();
+        if (this.FE != null){
+            filhos.add(this.FE);
+        }
+        if (this.FD != null){
+            filhos.add(this.FD);
+        }
+        return filhos.iterator();
     }
 
 }
