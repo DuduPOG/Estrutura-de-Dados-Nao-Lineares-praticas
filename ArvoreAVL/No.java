@@ -10,16 +10,18 @@ public class No {
     private No FE;
     private int value;
     private No FD;
+    private int FB;
 
     public No(No pai, int value){
         this.pai = pai;
         this.FE = null;
         this.value = value;
         this.FD = null;
+        this.FB = 0;
     }
 
     public No getPai() {
-        return pai;
+        return this.pai;
     }
 
     public void setPai(No pai) {
@@ -27,15 +29,23 @@ public class No {
     }
 
     public No getFE() {
-        return FE;
+        return this.FE;
     }
 
     public void setFE(No FE) {
         this.FE = FE;
     }
+    
+    public int getFB() {
+        return this.FB;
+    }
+
+    public void setFB(int FB) {
+        this.FB = FB;
+    }
 
     public int getValue() {
-        return value;
+        return this.value;
     }
 
     public void setValue(int value) {
@@ -43,7 +53,7 @@ public class No {
     }
 
     public No getFD() {
-        return FD;
+        return this.FD;
     }
 
     public void setFD(No FD) {
@@ -53,7 +63,7 @@ public class No {
     public boolean hasLeft(){
         return this.FE != null;
     }
-    
+
     public boolean hasRight(){
         return this.FD != null;
     }

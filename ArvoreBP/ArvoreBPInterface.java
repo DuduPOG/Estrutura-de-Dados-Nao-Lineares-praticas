@@ -14,6 +14,8 @@ public interface ArvoreBPInterface {
 
     No pai();
 
+    No buscar(No no) throws NoInexistente;
+
     void inserir(int value);
 
     void remover(int value);
