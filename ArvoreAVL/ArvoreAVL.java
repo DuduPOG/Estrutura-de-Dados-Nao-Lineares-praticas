@@ -92,19 +92,61 @@ public class ArvoreAVL extends ArvoreBP {
     }
 
 
-    public void RSE(){
-        
+    public void RSE(No no){
+        No subArvoreDireita = no.getFD();
+        No subArvoreEsquerda = subArvoreDireita.getFE();
+
+        subArvoreDireita.setFE(no);
+        no.setFD(subArvoreEsquerda);
+
+        subArvoreDireita.setPai(no.getPai());
+        no.setPai(subArvoreDireita);
+        if (subArvoreEsquerda != null){
+            subArvoreEsquerda.setPai(no);
+        }
+
+        if (subArvoreDireita.getPai() == null) {
+            this.raiz = subArvoreDireita;
+        }
+        else if (subArvoreDireita.getPai().getFE() == no) {
+            subArvoreDireita.getPai().setFE(subArvoreDireita);
+        } 
+        else {
+            subArvoreDireita.getPai().setFD(subArvoreDireita);
+        }
     }
 
-    public void RSD(){
+    public void RSD(No no){
+        No subArvoreEsquerda = no.getFE();
+        No subArvoreDireita = subArvoreEsquerda.getFD();
 
+        subArvoreEsquerda.setFD(no);
+        no.setFE(subArvoreDireita);
+
+        subArvoreEsquerda.setPai(no.getPai());
+        no.setPai(subArvoreEsquerda);
+        if (subArvoreDireita != null){
+            subArvoreDireita.setPai(no);
+        }
+
+        if (subArvoreEsquerda.getPai() == null) {
+            this.raiz = subArvoreEsquerda;
+        }
+        else if (subArvoreEsquerda.getPai().getFD() == no) {
+            subArvoreEsquerda.getPai().setFD(subArvoreEsquerda);
+        } 
+        else {
+            subArvoreEsquerda.getPai().setFE(subArvoreEsquerda);
+        }
     }
 
-    public void RDE(){
-
+    public void RDE(No no){
+        RSD(no.getFD());
+        RSE(no);
     }
 
-    public void RDD(){
-
+    public void RDD(No no){
+        RSE(no.getFE());
+        RSD(no);
     }
 }
