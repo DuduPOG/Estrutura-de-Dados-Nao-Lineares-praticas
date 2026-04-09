@@ -16,7 +16,7 @@ public class ArvoreAVL extends ArvoreBP {
         while(atual != null){
             paiAtual = atual;
             if (value == atual.getValue()){
-            return;
+                return;
             }
             if (value < atual.getValue()){
                 atual = atual.getFE();
@@ -27,14 +27,50 @@ public class ArvoreAVL extends ArvoreBP {
         }
         
         No novo = new No(paiAtual, value);
-
-        if (value < novo.getPai().getValue()) {
+        int novo_FB;
+        if (value < paiAtual.getValue()) {
             paiAtual.setFE(novo);
+            novo_FB = paiAtual.getFB() + 1;
         } 
         else {
             paiAtual.setFD(novo);
+            novo_FB = paiAtual.getFB() - 1;
         }
         this.size++;
+        paiAtual.setFB(novo_FB);
+
+        No current = paiAtual.getPai();
+
+        No currentChild = paiAtual;
+
+        while (current != null) { 
+            if (currentChild == current.getFE()) {
+                current.setFB(current.getFB() + 1);
+                if (current.getFB() > 1){
+                    if (currentChild.getFB() > 0){
+                        RSD(current);
+                    }
+                    else {
+                        RDD(current);
+                    }
+                    break;
+                }
+            }
+            else {
+                current.setFB(current.getFB() - 1);
+                if (current.getFB() < -1){
+                    if (currentChild.getFB() < 0){
+                        RSE(current);
+                    }
+                    else {
+                        RDE(current);
+                    }
+                    break;
+                }
+            }
+            currentChild = current;
+            current = current.getPai();
+        }
     }
 
     @Override
@@ -51,11 +87,13 @@ public class ArvoreAVL extends ArvoreBP {
             No novo = removerRec(no.getFE(), value);
             if (novo != null) novo.setPai(no);
             no.setFE(novo);
-        } 
+            no.setFB(no.getFB() - 1);
+        }
         else if (value > no.getValue()) {
             No novo = removerRec(no.getFD(), value);
             if (novo != null) novo.setPai(no);
             no.setFD(novo);
+            no.setFB(no.getFB() + 1);
         }
         else {
             if (no.getFE() == null) {
@@ -80,12 +118,34 @@ public class ArvoreAVL extends ArvoreBP {
             while (temp.getFE() != null){
                 temp = temp.getFE();
             }
-
             no.setValue(temp.getValue());
 
             No novo = removerRec(no.getFD(), temp.getValue());
-            if (novo != null) novo.setPai(no);
+            if (novo != null){
+                novo.setPai(no);
+            }    
             no.setFD(novo);
+            no.setFB(no.getFB() + 1);
+        }
+
+        if (no.getFB() > 1) {
+            No fe = no.getFE();
+            if (fe.getFB() >= 0) {
+                RSD(no);
+            }
+            else {
+                RDD(no);
+            }
+        }
+
+        else if (no.getFB() < -1) {
+            No fd = no.getFD();
+            if (fd.getFB() <= 0) {
+                RSE(no);
+            }
+            else {
+                RDE(no);
+            }
         }
 
         return no;
@@ -114,6 +174,10 @@ public class ArvoreAVL extends ArvoreBP {
         else {
             subArvoreDireita.getPai().setFD(subArvoreDireita);
         }
+        int FB_B_novo = no.getFB() + 1 - Math.min(subArvoreDireita.getFB(), 0);
+        int FB_A_novo = subArvoreDireita.getFB() + 1 + Math.max(FB_B_novo, 0);
+        no.setFB(FB_B_novo);
+        subArvoreDireita.setFB(FB_A_novo);
     }
 
     public void RSD(No no){
@@ -138,6 +202,10 @@ public class ArvoreAVL extends ArvoreBP {
         else {
             subArvoreEsquerda.getPai().setFE(subArvoreEsquerda);
         }
+        int FB_B_novo = no.getFB() - 1 - Math.max(subArvoreEsquerda.getFB(), 0);
+        int FB_A_novo = subArvoreEsquerda.getFB() - 1 + Math.min(FB_B_novo, 0);
+        no.setFB(FB_B_novo);
+        subArvoreEsquerda.setFB(FB_A_novo);
     }
 
     public void RDE(No no){

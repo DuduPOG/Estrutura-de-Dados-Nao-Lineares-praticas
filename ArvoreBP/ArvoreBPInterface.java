@@ -10,24 +10,24 @@ public interface ArvoreBPInterface {
 
     Iterator nos();
 
-    No raiz();
+    NoBP raiz();
 
-    No pai();
+    NoBP pai();
 
-    No buscar(No no) throws NoInexistente;
+    NoBP buscar(NoBP no) throws NoInexistente;
 
     void inserir(int value);
 
     void remover(int value);
 
-    boolean ehInterno(No no);
+    boolean ehInterno(NoBP no);
 
-    boolean ehExterno(No no);
+    boolean ehExterno(NoBP no);
 
     boolean ehRaiz();
 
-    int profundidade(No no);
+    int profundidade(NoBP no);
 
-    int replace(No no, int value);
+    int replace(NoBP no, int value);
     
 }

@@ -1,36 +1,36 @@
 
+//package ArvoreBP;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
+public class NoBP {
 
-
-public class No {
-
-    private No pai;
-    private No FE;
+    private NoBP pai;
+    private NoBP FE;
     private int value;
-    private No FD;
+    private NoBP FD;
 
-    public No(No pai, int value){
+    public NoBP(NoBP pai, int value){
         this.pai = pai;
         this.FE = null;
         this.value = value;
         this.FD = null;
     }
 
-    public No getPai() {
+    public NoBP getPai() {
         return pai;
     }
 
-    public void setPai(No pai) {
+    public void setPai(NoBP pai) {
         this.pai = pai;
     }
 
-    public No getFE() {
+    public NoBP getFE() {
         return FE;
     }
 
-    public void setFE(No FE) {
+    public void setFE(NoBP FE) {
         this.FE = FE;
     }
 
@@ -42,11 +42,11 @@ public class No {
         this.value = value;
     }
 
-    public No getFD() {
+    public NoBP getFD() {
         return FD;
     }
 
-    public void setFD(No FD) {
+    public void setFD(NoBP FD) {
         this.FD = FD;
     }
 
@@ -58,8 +58,8 @@ public class No {
         return this.FD != null;
     }
 
-    public Iterator<No> filhos(){
-        ArrayList<No> filhos = new ArrayList<>();
+    public Iterator<NoBP> filhos(){
+        ArrayList<NoBP> filhos = new ArrayList<>();
         if (this.FE != null){
             filhos.add(this.FE);
         }
