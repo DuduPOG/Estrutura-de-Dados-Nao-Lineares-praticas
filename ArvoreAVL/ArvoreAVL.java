@@ -1,11 +1,19 @@
-
-
-
 public class ArvoreAVL extends ArvoreBP {
     
     private No raiz;
 
     private int size;
+
+    // Classe interna para retornar nó e informação se altura mudou
+    private static class RemovalResult {
+        No node;
+        boolean heightChanged;
+        
+        RemovalResult(No node, boolean heightChanged) {
+            this.node = node;
+            this.heightChanged = heightChanged;
+        }
+    }
 
     public ArvoreAVL(){
         super();
@@ -97,7 +105,7 @@ public class ArvoreAVL extends ArvoreBP {
             if (currentChild == current.getFE()) {
                 current.setFB(current.getFB() + 1);
                 if (current.getFB() > 1){
-                    if (currentChild.getFB() > 0){
+                    if (currentChild.getFB() >= 0){
                         RSD(current);
                     }
                     else {
@@ -109,7 +117,7 @@ public class ArvoreAVL extends ArvoreBP {
             else {
                 current.setFB(current.getFB() - 1);
                 if (current.getFB() < -1){
-                    if (currentChild.getFB() < 0){
+                    if (currentChild.getFB() <= 0){
                         RSE(current);
                     }
                     else {
@@ -118,6 +126,9 @@ public class ArvoreAVL extends ArvoreBP {
                     break;
                 }
             }
+            if (current.getFB() == 0){
+                break;
+            }
             currentChild = current;
             current = current.getPai();
         }
@@ -125,86 +136,130 @@ public class ArvoreAVL extends ArvoreBP {
 
     @Override
     public void remover(int value) {
-        this.raiz = removerRec(this.raiz, value);
+        RemovalResult result = removerRec(this.raiz, value);
+        this.raiz = result.node;
     }
 
-    private No removerRec(No no, int value) {
-        if (no == null){
-            return null;
+    private RemovalResult removerRec(No no, int value) {
+        if (no == null) {
+            return new RemovalResult(null, false);
         }
+        
+        int fbAntigo = no.getFB();
+        
         if (value < no.getValue()) {
-            No novo = removerRec(no.getFE(), value);
-            if (novo != null){
-               novo.setPai(no); 
+            // Tenta remover da subárvore esquerda
+            RemovalResult result = removerRec(no.getFE(), value);
+            if (result.node != null) {
+                result.node.setPai(no);
             }
-            no.setFE(novo);
+            no.setFE(result.node);
+            
+            // Se altura da subárvore esquerda não mudou, para a recursão
+            if (!result.heightChanged) {
+                return new RemovalResult(no, false);
+            }
+            
+            // Altura mudou, atualiza FB
             no.setFB(no.getFB() - 1);
         }
         else if (value > no.getValue()) {
-            No novo = removerRec(no.getFD(), value);
-            if (novo != null){
-                novo.setPai(no);
+            // Tenta remover da subárvore direita
+            RemovalResult result = removerRec(no.getFD(), value);
+            if (result.node != null) {
+                result.node.setPai(no);
             }
-            no.setFD(novo);
+            no.setFD(result.node);
+            
+            // Se altura da subárvore direita não mudou, para a recursão
+            if (!result.heightChanged) {
+                return new RemovalResult(no, false);
+            }
+            
+            // Altura mudou, atualiza FB
             no.setFB(no.getFB() + 1);
         }
         else {
+            // Encontrou o nó a ser removido
             if (no.getFE() == null) {
                 No filho = no.getFD();
-                if (filho != null){
+                if (filho != null) {
                     filho.setPai(no.getPai());
                 }
                 this.size--;
-                return filho;
+                return new RemovalResult(filho, true); // Sempre retorna true (nó foi removido)
             }
 
             if (no.getFD() == null) {
                 No filho = no.getFE();
-                if (filho != null){
+                if (filho != null) {
                     filho.setPai(no.getPai());
                 }
                 this.size--;
-                return filho;
+                return new RemovalResult(filho, true); // Sempre retorna true (nó foi removido)
             }
 
+            // Nó tem dois filhos: encontra sucessor
             No temp = no.getFD();
-            while (temp.getFE() != null){
+            while (temp.getFE() != null) {
                 temp = temp.getFE();
             }
             no.setValue(temp.getValue());
 
-            No novo = removerRec(no.getFD(), temp.getValue());
-            if (novo != null){
-                novo.setPai(no);
-            }    
-            no.setFD(novo);
+            // Remove o sucessor da subárvore direita
+            RemovalResult result = removerRec(no.getFD(), temp.getValue());
+            if (result.node != null) {
+                result.node.setPai(no);
+            }
+            no.setFD(result.node);
+            
+            // Se altura da subárvore direita não mudou, para a recursão
+            if (!result.heightChanged) {
+                return new RemovalResult(no, false);
+            }
+            
+            // Altura mudou, atualiza FB
             no.setFB(no.getFB() + 1);
         }
 
+        // Verifica e aplica rebalanceamento se necessário
+        boolean rotationOccurred = false;
+        No novoNo = no;
         if (no.getFB() > 1) {
             No fe = no.getFE();
             if (fe != null && fe.getFB() >= 0) {
-                RSD(no);
+                novoNo = RSD(no);
+                rotationOccurred = true;
             }
             else if (fe != null) {
-                RDD(no);
+                novoNo = RDD(no);
+                rotationOccurred = true;
             }
         }
         else if (no.getFB() < -1) {
             No fd = no.getFD();
             if (fd != null && fd.getFB() <= 0) {
-                RSE(no);
+                novoNo = RSE(no);
+                rotationOccurred = true;
             }
             else if (fd != null) {
-                RDE(no);
+                novoNo = RDE(no);
+                rotationOccurred = true;
             }
         }
 
-        return no;
+        // Determina se a altura desta subárvore mudou
+        // A altura muda se e somente se FB = 0
+        // Isso é verdade tanto com quanto sem rotação:
+        // - Sem rotação: se FB era ±1 e virou 0, altura diminui
+        // - Com rotação: se novo nó tem FB = 0, altura diminui; se FB = ±1, altura não muda
+        boolean heightChanged = novoNo.getFB() == 0;
+        
+        return new RemovalResult(novoNo, heightChanged);
     }
 
 
-    public void RSE(No no){
+    public No RSE(No no){
         No subArvoreDireita = no.getFD();
         No subArvoreEsquerda = subArvoreDireita.getFE();
 
@@ -230,9 +285,11 @@ public class ArvoreAVL extends ArvoreBP {
         int FB_A_novo = subArvoreDireita.getFB() + 1 + Math.max(FB_B_novo, 0);
         no.setFB(FB_B_novo);
         subArvoreDireita.setFB(FB_A_novo);
+        
+        return subArvoreDireita;  // Retorna a nova raiz
     }
 
-    public void RSD(No no){
+    public No RSD(No no){
         No subArvoreEsquerda = no.getFE();
         No subArvoreDireita = subArvoreEsquerda.getFD();
 
@@ -258,16 +315,18 @@ public class ArvoreAVL extends ArvoreBP {
         int FB_A_novo = subArvoreEsquerda.getFB() - 1 + Math.min(FB_B_novo, 0);
         no.setFB(FB_B_novo);
         subArvoreEsquerda.setFB(FB_A_novo);
+        
+        return subArvoreEsquerda;  // Retorna a nova raiz
     }
 
-    public void RDE(No no){
-        RSD(no.getFD());
-        RSE(no);
+    public No RDE(No no){
+        no.setFD(RSD(no.getFD()));
+        return RSE(no);
     }
 
-    public void RDD(No no){
-        RSE(no.getFE());
-        RSD(no);
+    public No RDD(No no){
+        no.setFE(RSE(no.getFE()));
+        return RSD(no);
     }
 
     public void desenharArvore(){

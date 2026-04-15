@@ -1,4 +1,4 @@
-public class teste {
+public class testeDebug {
     public static void main(String[] args) {
         ArvoreAVL teste = new ArvoreAVL();
         teste.inserir(4);
@@ -12,14 +12,20 @@ public class teste {
         teste.inserir(10);
         teste.inserir(12);
         teste.inserir(15);
+        
+        System.out.println("=== Após inserir todos ===");
+        teste.desenharArvore();
+        
         teste.remover(15);
+        System.out.println("\n=== Após remover 15 ===");
+        teste.desenharArvore();
+        
         teste.remover(10);
-        teste.inserir(13);
-        teste.remover(3);
-        teste.remover(7);
-        teste.remover(5);
+        System.out.println("\n=== Após remover 10 ===");
+        teste.desenharArvore();
+        
         teste.remover(8);
-        teste.remover(4);
+        System.out.println("\n=== Após remover 8 ===");
         teste.desenharArvore();
     }
 }
