@@ -5,9 +5,9 @@ public class ArvoreBP {
     private int size;
 
 
-    public ArvoreBP(int value){
-        this.raiz = new No(null, value);
-        this.size = 1;
+    public ArvoreBP(){
+        this.raiz = null;
+        this.size = 0;
     }
 
 
@@ -55,10 +55,16 @@ public class ArvoreBP {
                 atual = atual.getFD();
             }
         }
+
+        if (paiAtual == null) {
+            this.raiz = new No(null, value);
+            this.size = 1;
+            return;
+        }
         
         No novo = new No(paiAtual, value);
 
-        if (value < novo.getPai().getValue()) {
+        if (value < paiAtual.getValue()) {
             paiAtual.setFE(novo);
         } 
         else {
@@ -150,5 +156,34 @@ public class ArvoreBP {
             return 0;
         }
         return 1 + profundidade(no.getPai());
+    }
+
+    public void desenharArvoreBP(){
+        int h = altura(raiz);
+        int largura = (int) Math.pow(2, h + 1) - 1;
+        String[][] mat = new String[h + 1][largura];
+
+        for (int i = 0; i <= h; i++) {
+            for (int j = 0; j < largura; j++) {
+                mat[i][j] = " ";
+            }
+        }
+        preencherMatrizBP(raiz, mat, 0, 0, largura - 1);
+        for (int i = 0; i <= h; i++) {
+            for (int j = 0; j < largura; j++) {
+                System.out.print(mat[i][j]);
+            }
+            System.out.println();
+        }
+    }
+
+    private void preencherMatrizBP(No no, String[][] mat, int linha, int esq, int dir) {
+        if (no == null){
+            return;
+        }
+        int meio = (esq + dir) / 2;
+        mat[linha][meio] = String.valueOf(no.getValue());
+        preencherMatrizBP(no.getFE(), mat, linha + 1, esq, meio - 1);
+        preencherMatrizBP(no.getFD(), mat, linha + 1, meio + 1, dir);
     }
 }

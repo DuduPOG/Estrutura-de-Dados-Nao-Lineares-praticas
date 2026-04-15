@@ -1,11 +1,40 @@
+
+
+
 public class ArvoreAVL extends ArvoreBP {
     
     private No raiz;
 
     private int size;
 
-    public ArvoreAVL(int value){
-        super(value);
+    public ArvoreAVL(){
+        super();
+    }
+    
+    @Override
+    public int size(){
+        return this.size;
+    }
+
+    public int altura(No no){
+        if (no == null){
+            return 0;
+        }
+        return 1 + Math.max(altura(no.getFE()), altura(no.getFD()));
+    }
+
+    public boolean isInternal(No no){
+        return no != null && (no.getFE() != null || no.getFD() != null);
+    }
+
+
+    public boolean isExternal(No no){
+        return no != null && (no.getFE() == null && no.getFD() == null);
+    }
+
+
+    public boolean isRoot(No no){
+        return no == this.raiz;
     }
 
     @Override
@@ -25,25 +54,46 @@ public class ArvoreAVL extends ArvoreBP {
                 atual = atual.getFD();
             }
         }
+
+        if (paiAtual == null) {
+            this.raiz = new No(null, value);
+            this.size = 1;
+            return;
+        }
         
         No novo = new No(paiAtual, value);
         int novo_FB;
         if (value < paiAtual.getValue()) {
+            if (isExternal(paiAtual)){
+                novo_FB = paiAtual.getFB() + 1;
+                paiAtual.setFB(novo_FB);
+            }
+            else {
+                paiAtual.setFB(0);
+            }
             paiAtual.setFE(novo);
-            novo_FB = paiAtual.getFB() + 1;
+            
         } 
         else {
+            if (isExternal(paiAtual)){
+                novo_FB = paiAtual.getFB() - 1;
+                paiAtual.setFB(novo_FB);
+            }
+            else {
+                paiAtual.setFB(0);
+            }
             paiAtual.setFD(novo);
-            novo_FB = paiAtual.getFB() - 1;
         }
         this.size++;
-        paiAtual.setFB(novo_FB);
+        if (paiAtual.getFB() == 0){
+            return;
+        }
 
         No current = paiAtual.getPai();
 
         No currentChild = paiAtual;
 
-        while (current != null) { 
+        while (current != null) {
             if (currentChild == current.getFE()) {
                 current.setFB(current.getFB() + 1);
                 if (current.getFB() > 1){
@@ -82,16 +132,19 @@ public class ArvoreAVL extends ArvoreBP {
         if (no == null){
             return null;
         }
-
         if (value < no.getValue()) {
             No novo = removerRec(no.getFE(), value);
-            if (novo != null) novo.setPai(no);
+            if (novo != null){
+               novo.setPai(no); 
+            }
             no.setFE(novo);
             no.setFB(no.getFB() - 1);
         }
         else if (value > no.getValue()) {
             No novo = removerRec(no.getFD(), value);
-            if (novo != null) novo.setPai(no);
+            if (novo != null){
+                novo.setPai(no);
+            }
             no.setFD(novo);
             no.setFB(no.getFB() + 1);
         }
@@ -130,20 +183,19 @@ public class ArvoreAVL extends ArvoreBP {
 
         if (no.getFB() > 1) {
             No fe = no.getFE();
-            if (fe.getFB() >= 0) {
+            if (fe != null && fe.getFB() >= 0) {
                 RSD(no);
             }
-            else {
+            else if (fe != null) {
                 RDD(no);
             }
         }
-
         else if (no.getFB() < -1) {
             No fd = no.getFD();
-            if (fd.getFB() <= 0) {
+            if (fd != null && fd.getFB() <= 0) {
                 RSE(no);
             }
-            else {
+            else if (fd != null) {
                 RDE(no);
             }
         }
@@ -217,4 +269,51 @@ public class ArvoreAVL extends ArvoreBP {
         RSE(no.getFE());
         RSD(no);
     }
+
+    public void desenharArvore(){
+        int h = altura(raiz);
+        int largura = (int) Math.pow(2, h + 1) - 1;
+        String[][] mat = new String[h + 1][largura];
+
+        for (int i = 0; i <= h; i++) {
+            for (int j = 0; j < largura; j++) {
+                mat[i][j] = "    ";
+            }
+        }
+        preencherMatriz(raiz, mat, 0, 0, largura - 1);
+        for (int i = 0; i <= h; i++) {
+            for (int j = 0; j < largura; j++) {
+                System.out.print(mat[i][j]);
+            }
+            System.out.println();
+        }
+    }
+
+    private void preencherMatriz(No no, String[][] mat, int linha, int esq, int dir) {
+        if (no == null){
+            return;
+        }
+        int meio = (esq + dir) / 2;
+        mat[linha][meio] = String.valueOf(no.getValue());
+        mat[linha][meio] += "[";
+        mat[linha][meio] += String.valueOf(no.getFB());
+        mat[linha][meio] += "]";
+        preencherMatriz(no.getFE(), mat, linha + 1, esq, meio - 1);
+        preencherMatriz(no.getFD(), mat, linha + 1, meio + 1, dir);
+    }
+/*
+    public static void main(String[] args) {
+        
+        ArvoreAVL teste = new ArvoreAVL(4);
+        teste.inserir(2);
+        teste.inserir(6);
+        teste.inserir(1);
+        teste.inserir(3);
+        //teste.inserir(5);
+        //teste.inserir(7);
+        //teste.remover(4);
+        teste.desenharArvore();
+    }
+        */
+        
 }
