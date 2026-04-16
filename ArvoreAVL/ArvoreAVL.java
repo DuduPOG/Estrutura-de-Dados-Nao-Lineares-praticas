@@ -46,14 +46,18 @@ public class ArvoreAVL extends ArvoreBP {
         return no == this.raiz;
     }
 
-    public No buscar(int value) throws NoInexistente{
+    public No buscar(int value) throws NoInexistente {
         No atual = this.raiz;
         while(atual != null){
             if (atual.getValue() == value){
                 return atual;
             }
-            buscar(atual.getFE().getValue());
-            buscar(atual.getFD().getValue());
+            if (atual.getValue() < value) {
+                atual = atual.getFE();
+            }
+            else{
+              atual = atual.getFD();  
+            }
         }
         throw new NoInexistente("Nó não encontrado");
     }
@@ -360,3 +364,4 @@ public class ArvoreAVL extends ArvoreBP {
         ArvoreAVL teste = new ArvoreAVL();
     }
 }
+ 

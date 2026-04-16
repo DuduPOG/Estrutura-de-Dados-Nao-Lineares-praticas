@@ -26,14 +26,18 @@ public class ArvoreBP {
     }
 
 
-    public NoBP buscar(NoBP no) throws NoInexistente{
+    public NoBP buscarBP(NoBP no) throws NoInexistente{
         NoBP atual = this.raiz;
         while(atual != null){
             if (atual == no){
                 return no;
             }
-            buscar(no.getFE());
-            buscar(no.getFD());
+            if (atual.getValue() < no.getValue()){
+                atual = atual.getFE();
+            }
+            else {
+                atual = atual.getFD();
+            }
         }
         throw new NoInexistente("Nó não encontrado");
     }
