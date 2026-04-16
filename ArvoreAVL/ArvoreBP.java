@@ -11,12 +11,12 @@ public class ArvoreBP {
     }
 
 
-    public int size(){
+    public int sizeBP(){
         return this.size;
     }
     
 
-    public No raiz(){
+    public No raizBP(){
         return this.raiz;
     }
 
@@ -26,7 +26,7 @@ public class ArvoreBP {
     }
 
 
-    public No buscar(No no) throws NoInexistente{
+    public NoBP buscarBP(NoBP no) throws NoInexistente{
         No atual = this.raiz;
         while(atual != null){
             if (atual == no){
@@ -143,11 +143,11 @@ public class ArvoreBP {
     }
 
 
-    public int altura(No no){
+    public int alturaBP(No no){
         if (no == null){
             return 0;
         }
-        return 1 + Math.max(altura(no.getFE()), altura(no.getFD()));
+        return 1 + Math.max(alturaBP(no.getFE()), alturaBP(no.getFD()));
     }
 
 
@@ -159,7 +159,7 @@ public class ArvoreBP {
     }
 
     public void desenharArvoreBP(){
-        int h = altura(raiz);
+        int h = alturaBP(this.raiz);
         int largura = (int) Math.pow(2, h + 1) - 1;
         String[][] mat = new String[h + 1][largura];
 
