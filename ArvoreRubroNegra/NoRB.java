@@ -14,7 +14,7 @@ public class NoRB {
         VERMELHO("V"),
         PRETO("P");
 
-        private String cor;
+        private final String cor;
 
         private Cores(String cor) {
             this.cor = cor;
