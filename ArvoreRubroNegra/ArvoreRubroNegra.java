@@ -10,12 +10,12 @@ public class ArvoreRubroNegra {
     }
 
 
-    public int sizeBP(){
+    public int size(){
         return this.size;
     }
     
 
-    public NoRB raizBP(){
+    public NoRB raiz(){
         return this.raiz;
     }
 
@@ -61,11 +61,13 @@ public class ArvoreRubroNegra {
 
         if (paiAtual == null) {
             this.raiz = new NoRB(null, value);
+            this.raiz.setCor(NoRB.Cores.PRETO);
             this.size = 1;
             return;
         }
         
         NoRB novo = new NoRB(paiAtual, value);
+        novo.setCor(NoRB.Cores.VERMELHO);
 
         if (value < paiAtual.getValue()) {
             paiAtual.setFE(novo);
@@ -74,6 +76,7 @@ public class ArvoreRubroNegra {
             paiAtual.setFD(novo);
         }
         this.size++;
+        rebalanceamento(novo);
     }
 
 
@@ -127,6 +130,136 @@ public class ArvoreRubroNegra {
             no.setFD(novo);
         }
 
+        return no;
+    }
+
+    public NoRB RSE(NoRB no){
+        NoRB subArvoreDireita = no.getFD();
+        NoRB subArvoreEsquerda = subArvoreDireita.getFE();
+
+        subArvoreDireita.setFE(no);
+        no.setFD(subArvoreEsquerda);
+
+        subArvoreDireita.setPai(no.getPai());
+        no.setPai(subArvoreDireita);
+
+        if (subArvoreEsquerda != null){
+            subArvoreEsquerda.setPai(no);
+        }
+
+        if (subArvoreDireita.getPai() == null) {
+            this.raiz = subArvoreDireita;
+        }
+        else if (subArvoreDireita.getPai().getFE() == no) {
+            subArvoreDireita.getPai().setFE(subArvoreDireita);
+        } 
+        else {
+            subArvoreDireita.getPai().setFD(subArvoreDireita);
+        }        
+        return subArvoreDireita;
+    }
+
+    public NoRB RSD(NoRB no){
+        NoRB subArvoreEsquerda = no.getFE();
+        NoRB subArvoreDireita = subArvoreEsquerda.getFD();
+
+        subArvoreEsquerda.setFD(no);
+        no.setFE(subArvoreDireita);
+
+        subArvoreEsquerda.setPai(no.getPai());
+        no.setPai(subArvoreEsquerda);
+
+        if (subArvoreDireita != null){
+            subArvoreDireita.setPai(no);
+        }
+
+        if (subArvoreEsquerda.getPai() == null) {
+            this.raiz = subArvoreEsquerda;
+        }
+        else if (subArvoreEsquerda.getPai().getFD() == no) {
+            subArvoreEsquerda.getPai().setFD(subArvoreEsquerda);
+        } 
+        else {
+            subArvoreEsquerda.getPai().setFE(subArvoreEsquerda);
+        }
+        return subArvoreEsquerda;
+    }
+
+    public NoRB RDE(NoRB no){
+        no.setFD(RSD(no.getFD()));
+        return RSE(no);
+    }
+
+    public NoRB RDD(NoRB no){
+        no.setFE(RSE(no.getFE()));
+        return RSD(no);
+    }
+
+    private NoRB rebalanceamento(NoRB no) {
+
+        while (no != null && no != this.raiz && no.getPai().getCor() == NoRB.Cores.VERMELHO) {
+            NoRB atual = no.getPai();
+            NoRB paiAtual = atual.getPai();
+
+            if (paiAtual == null) {
+                break;
+            }
+
+            if (atual == paiAtual.getFE()) {
+                NoRB irmaoDireito = paiAtual.getFD();
+
+                if (irmaoDireito.getCor() == NoRB.Cores.VERMELHO) {
+                    atual.setCor(NoRB.Cores.PRETO);
+                    irmaoDireito.setCor(NoRB.Cores.PRETO);
+                    paiAtual.setCor(NoRB.Cores.VERMELHO);
+                    no = paiAtual;
+                }
+                else {
+                    if (no == atual.getFD()) {
+                        RDD(paiAtual);
+                        NoRB novoTopo = paiAtual.getPai();
+                        novoTopo.setCor(NoRB.Cores.PRETO);
+                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        no = novoTopo;
+                    } else {
+                        RSD(paiAtual);
+                        NoRB novoTopo = paiAtual.getPai();
+                        novoTopo.setCor(NoRB.Cores.PRETO);
+                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        no = novoTopo;
+                    }
+                }
+            } else {
+                NoRB irmaoEsquerdo = paiAtual.getFE();
+
+                if (irmaoEsquerdo.getCor() == NoRB.Cores.VERMELHO) {
+                    atual.setCor(NoRB.Cores.PRETO);
+                    irmaoEsquerdo.setCor(NoRB.Cores.PRETO);
+                    paiAtual.setCor(NoRB.Cores.VERMELHO);
+                    no = paiAtual;
+                } else {
+                    if (no == atual.getFE()) {
+                        RDE(paiAtual);
+                        NoRB novoTopo = paiAtual.getPai();
+
+                        novoTopo.setCor(NoRB.Cores.PRETO);
+                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        no = novoTopo;
+                    } else {
+                        RSE(paiAtual);
+                        NoRB novoTopo = paiAtual.getPai();
+                        novoTopo.setCor(NoRB.Cores.PRETO);
+                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        no = novoTopo;
+                    }
+                }
+            }
+        }
+        this.raiz.setCor(NoRB.Cores.PRETO);
         return no;
     }
 

@@ -1,6 +1,6 @@
 public class ArvoreBP {
     
-    private No raiz;
+    private NoBP raiz;
 
     private int size;
 
@@ -21,18 +21,18 @@ public class ArvoreBP {
     }
 
 
-    public No pai(No no){
-        return no.getPai();
+    public NoBP pai(NoBP NoBP){
+        return NoBP.getPai();
     }
 
 
-    public NoBP buscarBP(NoBP no) throws NoInexistente{
+    public NoBP buscarBP(NoBP NoBP) throws NoInexistente{
         NoBP atual = this.raiz;
         while(atual != null){
-            if (atual == no){
-                return no;
+            if (atual == NoBP){
+                return NoBP;
             }
-            if (atual.getValue() < no.getValue()){
+            if (atual.getValue() < NoBP.getValue()){
                 atual = atual.getFE();
             }
             else {
@@ -44,8 +44,8 @@ public class ArvoreBP {
 
 
     public void inserir(int value) {
-        No atual = this.raiz;
-        No paiAtual = null;
+        NoBP atual = this.raiz;
+        NoBP paiAtual = null;
 
         while(atual != null){
             paiAtual = atual;
@@ -61,18 +61,18 @@ public class ArvoreBP {
         }
 
         if (paiAtual == null) {
-            this.raiz = new No(null, value);
+            this.raiz = new NoBP(null, value);
             this.size = 1;
             return;
         }
         
-        No novo = new No(paiAtual, value);
+        NoBP NoBPvo = new NoBP(paiAtual, value);
 
         if (value < paiAtual.getValue()) {
-            paiAtual.setFE(novo);
+            paiAtual.setFE(NoBPvo);
         } 
         else {
-            paiAtual.setFD(novo);
+            paiAtual.setFD(NoBPvo);
         }
         this.size++;
     }
@@ -82,84 +82,84 @@ public class ArvoreBP {
         this.raiz = removerRec(this.raiz, value);
     }
 
-    private No removerRec(No no, int value) {
-        if (no == null){
+    private NoBP removerRec(NoBP NoBP, int value) {
+        if (NoBP == null){
             return null;
         }
 
-        if (value < no.getValue()) {
-            No novo = removerRec(no.getFE(), value);
-            if (novo != null) novo.setPai(no);
-            no.setFE(novo);
+        if (value < NoBP.getValue()) {
+            NoBP NoBPvo = removerRec(NoBP.getFE(), value);
+            if (NoBPvo != null) NoBPvo.setPai(NoBP);
+            NoBP.setFE(NoBPvo);
         } 
-        else if (value > no.getValue()) {
-            No novo = removerRec(no.getFD(), value);
-            if (novo != null) novo.setPai(no);
-            no.setFD(novo);
+        else if (value > NoBP.getValue()) {
+            NoBP NoBPvo = removerRec(NoBP.getFD(), value);
+            if (NoBPvo != null) NoBPvo.setPai(NoBP);
+            NoBP.setFD(NoBPvo);
         }
         else {
-            if (no.getFE() == null) {
-                No filho = no.getFD();
+            if (NoBP.getFE() == null) {
+                NoBP filho = NoBP.getFD();
                 if (filho != null){
-                    filho.setPai(no.getPai());
+                    filho.setPai(NoBP.getPai());
                 }
                 this.size--;
                 return filho;
             }
 
-            if (no.getFD() == null) {
-                No filho = no.getFE();
+            if (NoBP.getFD() == null) {
+                NoBP filho = NoBP.getFE();
                 if (filho != null){
-                    filho.setPai(no.getPai());
+                    filho.setPai(NoBP.getPai());
                 }
                 this.size--;
                 return filho;
             }
 
-            No temp = no.getFD();
+            NoBP temp = NoBP.getFD();
             while (temp.getFE() != null){
                 temp = temp.getFE();
             }
 
-            no.setValue(temp.getValue());
+            NoBP.setValue(temp.getValue());
 
-            No novo = removerRec(no.getFD(), temp.getValue());
-            if (novo != null) novo.setPai(no);
-            no.setFD(novo);
+            NoBP NoBPvo = removerRec(NoBP.getFD(), temp.getValue());
+            if (NoBPvo != null) NoBPvo.setPai(NoBP);
+            NoBP.setFD(NoBPvo);
         }
 
-        return no;
+        return NoBP;
     }
 
 
-    public boolean ehInterno(No no){
-        return no != null && (no.getFE() != null || no.getFD() != null);
+    public boolean ehInterNoBP(NoBP NoBP){
+        return NoBP != null && (NoBP.getFE() != null || NoBP.getFD() != null);
     }
 
 
-    public boolean ehExterno(No no){
-        return no != null && (no.getFE() == null && no.getFD() == null);
+    public boolean ehExterNoBP(NoBP NoBP){
+        return NoBP != null && (NoBP.getFE() == null && NoBP.getFD() == null);
     }
 
 
-    public boolean ehRaiz(No no){
-        return no == this.raiz;
+    public boolean ehRaiz(NoBP NoBP){
+        return NoBP == this.raiz;
     }
 
 
-    public int alturaBP(No no){
-        if (no == null){
+    public int alturaBP(NoBP NoBP){
+        if (NoBP == null){
             return 0;
         }
-        return 1 + Math.max(alturaBP(no.getFE()), alturaBP(no.getFD()));
+        return 1 + Math.max(alturaBP(NoBP.getFE()), alturaBP(NoBP.getFD()));
     }
 
 
-    public int profundidade(No no){
-        if (no == this.raiz){
+    public int profundidade(NoBP NoBP){
+        if (NoBP == this.raiz){
             return 0;
         }
-        return 1 + profundidade(no.getPai());
+        return 1 + profundidade(NoBP.getPai());
     }
 
     public void desenharArvoreBP(){
@@ -181,13 +181,13 @@ public class ArvoreBP {
         }
     }
 
-    private void preencherMatrizBP(No no, String[][] mat, int linha, int esq, int dir) {
-        if (no == null){
+    private void preencherMatrizBP(NoBP NoBP, String[][] mat, int linha, int esq, int dir) {
+        if (NoBP == null){
             return;
         }
         int meio = (esq + dir) / 2;
-        mat[linha][meio] = String.valueOf(no.getValue());
-        preencherMatrizBP(no.getFE(), mat, linha + 1, esq, meio - 1);
-        preencherMatrizBP(no.getFD(), mat, linha + 1, meio + 1, dir);
+        mat[linha][meio] = String.valueOf(NoBP.getValue());
+        preencherMatrizBP(NoBP.getFE(), mat, linha + 1, esq, meio - 1);
+        preencherMatrizBP(NoBP.getFD(), mat, linha + 1, meio + 1, dir);
     }
 }
