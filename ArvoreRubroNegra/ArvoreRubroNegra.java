@@ -61,13 +61,13 @@ public class ArvoreRubroNegra {
 
         if (paiAtual == null) {
             this.raiz = new NoRB(null, value);
-            this.raiz.setCor(NoRB.Cores.PRETO);
+            this.raiz.setCor(NoRB.Cores.P);
             this.size = 1;
             return;
         }
         
         NoRB novo = new NoRB(paiAtual, value);
-        novo.setCor(NoRB.Cores.VERMELHO);
+        novo.setCor(NoRB.Cores.V);
 
         if (value < paiAtual.getValue()) {
             paiAtual.setFE(novo);
@@ -197,7 +197,7 @@ public class ArvoreRubroNegra {
 
     private NoRB rebalanceamento(NoRB no) {
 
-        while (no != null && no != this.raiz && no.getPai().getCor() == NoRB.Cores.VERMELHO) {
+        while (no != null && no != this.raiz && no.getPai().getCor() == NoRB.Cores.V) {
             NoRB atual = no.getPai();
             NoRB paiAtual = atual.getPai();
 
@@ -208,58 +208,58 @@ public class ArvoreRubroNegra {
             if (atual == paiAtual.getFE()) {
                 NoRB irmaoDireito = paiAtual.getFD();
 
-                if (irmaoDireito.getCor() == NoRB.Cores.VERMELHO) {
-                    atual.setCor(NoRB.Cores.PRETO);
-                    irmaoDireito.setCor(NoRB.Cores.PRETO);
-                    paiAtual.setCor(NoRB.Cores.VERMELHO);
+                if ((irmaoDireito != null) && irmaoDireito.getCor() == NoRB.Cores.V) {
+                    atual.setCor(NoRB.Cores.P);
+                    irmaoDireito.setCor(NoRB.Cores.P);
+                    paiAtual.setCor(NoRB.Cores.V);
                     no = paiAtual;
                 }
                 else {
                     if (no == atual.getFD()) {
                         RDD(paiAtual);
                         NoRB novoTopo = paiAtual.getPai();
-                        novoTopo.setCor(NoRB.Cores.PRETO);
-                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
-                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.setCor(NoRB.Cores.P);
+                        novoTopo.getFE().setCor(NoRB.Cores.V);
+                        novoTopo.getFD().setCor(NoRB.Cores.V);
                         no = novoTopo;
                     } else {
                         RSD(paiAtual);
                         NoRB novoTopo = paiAtual.getPai();
-                        novoTopo.setCor(NoRB.Cores.PRETO);
-                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
-                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.setCor(NoRB.Cores.P);
+                        novoTopo.getFE().setCor(NoRB.Cores.V);
+                        novoTopo.getFD().setCor(NoRB.Cores.V);
                         no = novoTopo;
                     }
                 }
             } else {
                 NoRB irmaoEsquerdo = paiAtual.getFE();
 
-                if (irmaoEsquerdo.getCor() == NoRB.Cores.VERMELHO) {
-                    atual.setCor(NoRB.Cores.PRETO);
-                    irmaoEsquerdo.setCor(NoRB.Cores.PRETO);
-                    paiAtual.setCor(NoRB.Cores.VERMELHO);
+                if ((irmaoEsquerdo != null) && irmaoEsquerdo.getCor() == NoRB.Cores.V) {
+                    atual.setCor(NoRB.Cores.P);
+                    irmaoEsquerdo.setCor(NoRB.Cores.P);
+                    paiAtual.setCor(NoRB.Cores.V);
                     no = paiAtual;
                 } else {
                     if (no == atual.getFE()) {
                         RDE(paiAtual);
                         NoRB novoTopo = paiAtual.getPai();
 
-                        novoTopo.setCor(NoRB.Cores.PRETO);
-                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
-                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.setCor(NoRB.Cores.P);
+                        novoTopo.getFE().setCor(NoRB.Cores.V);
+                        novoTopo.getFD().setCor(NoRB.Cores.V);
                         no = novoTopo;
                     } else {
                         RSE(paiAtual);
                         NoRB novoTopo = paiAtual.getPai();
-                        novoTopo.setCor(NoRB.Cores.PRETO);
-                        novoTopo.getFE().setCor(NoRB.Cores.VERMELHO);
-                        novoTopo.getFD().setCor(NoRB.Cores.VERMELHO);
+                        novoTopo.setCor(NoRB.Cores.P);
+                        novoTopo.getFE().setCor(NoRB.Cores.V);
+                        novoTopo.getFD().setCor(NoRB.Cores.V);
                         no = novoTopo;
                     }
                 }
             }
         }
-        this.raiz.setCor(NoRB.Cores.PRETO);
+        this.raiz.setCor(NoRB.Cores.P);
         return no;
     }
 
@@ -294,14 +294,14 @@ public class ArvoreRubroNegra {
         return 1 + profundidade(no.getPai());
     }
 
-    public void desenharArvoreBP(){
+    public void desenharArvore(){
         int h = altura(this.raiz);
         int largura = (int) Math.pow(2, h + 1) - 1;
         String[][] mat = new String[h + 1][largura];
 
         for (int i = 0; i <= h; i++) {
             for (int j = 0; j < largura; j++) {
-                mat[i][j] = " ";
+                mat[i][j] = "   ";
             }
         }
         preencherMatriz(raiz, mat, 0, 0, largura - 1);
@@ -321,5 +321,17 @@ public class ArvoreRubroNegra {
         mat[linha][meio] = String.valueOf(no.getValue()) + "[" + no.getCor() + "]";
         preencherMatriz(no.getFE(), mat, linha + 1, esq, meio - 1);
         preencherMatriz(no.getFD(), mat, linha + 1, meio + 1, dir);
+    }
+
+    public static void main(String args[]){
+        ArvoreRubroNegra teste = new ArvoreRubroNegra();
+        teste.inserir(3);
+        teste.inserir(2);
+        teste.inserir(1);
+        //teste.inserir(1);
+        //teste.inserir(3);
+        //teste.inserir(5);
+        //teste.inserir(7);
+        teste.desenharArvore();
     }
 }

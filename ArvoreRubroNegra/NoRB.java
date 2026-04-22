@@ -11,8 +11,8 @@ public class NoRB {
 
     public enum Cores{
 
-        VERMELHO("V"),
-        PRETO("P");
+        V("Vermelho"),
+        P("Preto");
 
         private final String cor;
 
@@ -30,7 +30,7 @@ public class NoRB {
         this.FE = null;
         this.value = value;
         this.FD = null;
-        this.cor = Cores.VERMELHO;
+        this.cor = Cores.V;
     }
 
     public NoRB getPai() {
