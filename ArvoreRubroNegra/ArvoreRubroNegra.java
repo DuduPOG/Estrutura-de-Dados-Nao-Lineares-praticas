@@ -91,12 +91,16 @@ public class ArvoreRubroNegra {
 
         if (value < no.getValue()) {
             NoRB novo = removerRec(no.getFE(), value);
-            if (novo != null) novo.setPai(no);
+            if (novo != null){
+                novo.setPai(no);
+            }
             no.setFE(novo);
         } 
         else if (value > no.getValue()) {
             NoRB novo = removerRec(no.getFD(), value);
-            if (novo != null) novo.setPai(no);
+            if (novo != null){
+                novo.setPai(no);
+            }
             no.setFD(novo);
         }
         else {
@@ -126,10 +130,11 @@ public class ArvoreRubroNegra {
             no.setValue(temp.getValue());
 
             NoRB novo = removerRec(no.getFD(), temp.getValue());
-            if (novo != null) novo.setPai(no);
+            if (novo != null){   
+                novo.setPai(no);
+            }
             no.setFD(novo);
         }
-
         return no;
     }
 
