@@ -1,8 +1,11 @@
 public class NoB{
 
     private Object[] chaves;
+
     private int t; // Grau ou Ordem
+
     private NoB[] filhos; // Array de filhos
+    
     private int numChaves; // Número atual de chaves
 
     public NoB(int t) {
