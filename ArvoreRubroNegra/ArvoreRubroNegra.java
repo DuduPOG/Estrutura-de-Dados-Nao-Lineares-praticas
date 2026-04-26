@@ -24,23 +24,43 @@ public class ArvoreRubroNegra {
         return no.getPai();
     }
 
-
-    public NoRB buscar(NoRB no) throws NoInexistente{
-        NoRB atual = this.raiz;
-        while(atual != null){
-            if (atual == no){
-                return no;
-            }
-            if (atual.getValue() < no.getValue()){
-                atual = atual.getFE();
-            }
-            else {
-                atual = atual.getFD();
-            }
-        }
-        throw new NoInexistente("Nó não encontrado");
+    public boolean isEmpty(){
+        return this.size == 0;
     }
 
+    private static boolean isBST(NoRB no, Integer min, Integer max) {
+        if (no == null) {
+            return true;
+        }
+
+        if ((min != null && no.getValue() <= min) ||
+            (max != null && no.getValue() >= max)) {
+            return false;
+        }
+
+        return isBST(no.getFE(), min, no.getValue()) &&
+            isBST(no.getFD(), no.getValue(), max);
+    }
+
+    public NoRB buscar(NoRB no, int value){
+        while(no != null){
+            if (no.getValue() == value){
+                return no;
+            }
+
+            if (value < no.getValue()){
+                no = no.getFE();
+            }
+            else {
+                no = no.getFD();
+            }
+        }
+        return null;
+    }
+
+    private NoRB.Cores cor(NoRB no) {
+        return no == null ? NoRB.Cores.P : no.getCor();
+    }
 
     public void inserir(int value) {
         NoRB atual = this.raiz;
@@ -81,59 +101,203 @@ public class ArvoreRubroNegra {
 
 
     public void remover(int value) {
-        this.raiz = removerRec(this.raiz, value);
-    }
+        NoRB alvo = buscar(this.raiz, value);
 
-    private NoRB removerRec(NoRB no, int value) {
-        if (no == null){
-            return null;
+        if (alvo == null) {
+            return;
         }
 
-        if (value < no.getValue()) {
-            NoRB novo = removerRec(no.getFE(), value);
-            if (novo != null){
-                novo.setPai(no);
-            }
-            no.setFE(novo);
-        } 
-        else if (value > no.getValue()) {
-            NoRB novo = removerRec(no.getFD(), value);
-            if (novo != null){
-                novo.setPai(no);
-            }
-            no.setFD(novo);
+        NoRB y = alvo; // nó efetivamente removido
+        NoRB.Cores corOriginal = y.getCor();
+
+        NoRB x;        // substituto
+        NoRB paiX;     // importante caso x seja null
+
+        if (alvo.getFE() == null) {
+            x = alvo.getFD();
+            paiX = alvo.getPai();
+            transplantar(alvo, alvo.getFD());
+        }
+        else if (alvo.getFD() == null) {
+            x = alvo.getFE();
+            paiX = alvo.getPai();
+            transplantar(alvo, alvo.getFE());
         }
         else {
-            if (no.getFE() == null) {
-                NoRB filho = no.getFD();
-                if (filho != null){
-                    filho.setPai(no.getPai());
+            y = minimo(alvo.getFD());
+            corOriginal = y.getCor();
+
+            x = y.getFD();
+
+            if (y.getPai() == alvo) {
+                paiX = y;
+                if (x != null) {
+                    x.setPai(y);
                 }
-                this.size--;
-                return filho;
+            } else {
+                paiX = y.getPai();
+                transplantar(y, y.getFD());
+
+                y.setFD(alvo.getFD());
+                y.getFD().setPai(y);
             }
 
-            if (no.getFD() == null) {
-                NoRB filho = no.getFE();
-                if (filho != null){
-                    filho.setPai(no.getPai());
+            transplantar(alvo, y);
+
+            y.setFE(alvo.getFE());
+            y.getFE().setPai(y);
+
+            y.setCor(alvo.getCor());
+        }
+
+        this.size--;
+
+        if (corOriginal == NoRB.Cores.P) {
+            rebalancearRemocao(x, paiX);
+        }
+
+        if (this.raiz != null) {
+            this.raiz.setCor(NoRB.Cores.P);
+        }
+    }
+
+    private void rebalancearRemocao(NoRB x, NoRB pai) {
+
+        while (x != this.raiz && cor(x) == NoRB.Cores.P) {
+
+            if (pai == null) {
+                break;
+            }
+
+            // x é filho esquerdo
+            if (x == pai.getFE()) {
+                NoRB w = pai.getFD();
+
+                if (w == null) {
+                    x = pai;
+                    pai = x.getPai();
+                    continue;
                 }
-                this.size--;
-                return filho;
+
+                // CASO 1
+                if (cor(w) == NoRB.Cores.V) {
+                    w.setCor(NoRB.Cores.P);
+                    pai.setCor(NoRB.Cores.V);
+                    RSE(pai);
+                    w = pai.getFD();
+                }
+
+                // CASO 2
+                if (cor(w.getFE()) == NoRB.Cores.P &&
+                    cor(w.getFD()) == NoRB.Cores.P) {
+
+                    w.setCor(NoRB.Cores.V);
+                    x = pai;
+                    pai = x.getPai();
+                }
+
+                else {
+                    // CASO 3
+                    if (cor(w.getFD()) == NoRB.Cores.P) {
+                        if (w.getFE() != null) {
+                            w.getFE().setCor(NoRB.Cores.P);
+                        }
+
+                        w.setCor(NoRB.Cores.V);
+                        RSD(w);
+                        w = pai.getFD();
+                    }
+
+                    // CASO 4
+                    w.setCor(pai.getCor());
+                    pai.setCor(NoRB.Cores.P);
+
+                    if (w.getFD() != null) {
+                        w.getFD().setCor(NoRB.Cores.P);
+                    }
+
+                    RSE(pai);
+                    x = this.raiz;
+                }
             }
 
-            NoRB temp = no.getFD();
-            while (temp.getFE() != null){
-                temp = temp.getFE();
-            }
+            // espelhado
+            else {
+                NoRB w = pai.getFE();
 
-            no.setValue(temp.getValue());
+                if (w == null) {
+                    x = pai;
+                    pai = x.getPai();
+                    continue;
+                }
 
-            NoRB novo = removerRec(no.getFD(), temp.getValue());
-            if (novo != null){   
-                novo.setPai(no);
+                // CASO 1
+                if (cor(w) == NoRB.Cores.V) {
+                    w.setCor(NoRB.Cores.P);
+                    pai.setCor(NoRB.Cores.V);
+                    RSD(pai);
+                    w = pai.getFE();
+                }
+
+                // CASO 2
+                if (cor(w.getFE()) == NoRB.Cores.P &&
+                    cor(w.getFD()) == NoRB.Cores.P) {
+
+                    w.setCor(NoRB.Cores.V);
+                    x = pai;
+                    pai = x.getPai();
+                }
+
+                else {
+                    // CASO 3
+                    if (cor(w.getFE()) == NoRB.Cores.P) {
+                        if (w.getFD() != null) {
+                            w.getFD().setCor(NoRB.Cores.P);
+                        }
+
+                        w.setCor(NoRB.Cores.V);
+                        RSE(w);
+                        w = pai.getFE();
+                    }
+
+                    // CASO 4
+                    w.setCor(pai.getCor());
+                    pai.setCor(NoRB.Cores.P);
+
+                    if (w.getFE() != null) {
+                        w.getFE().setCor(NoRB.Cores.P);
+                    }
+
+                    RSD(pai);
+                    x = this.raiz;
+                }
             }
-            no.setFD(novo);
+        }
+
+        if (x != null) {
+            x.setCor(NoRB.Cores.P);
+        }
+    }
+
+    private void transplantar(NoRB u, NoRB v) {
+        if (u.getPai() == null) {
+            this.raiz = v;
+        }
+        else if (u == u.getPai().getFE()) {
+            u.getPai().setFE(v);
+        }
+        else {
+            u.getPai().setFD(v);
+        }
+
+        if (v != null) {
+            v.setPai(u.getPai());
+        }
+    }
+
+    private NoRB minimo(NoRB no) {
+        while (no.getFE() != null) {
+            no = no.getFE();
         }
         return no;
     }
@@ -200,72 +364,74 @@ public class ArvoreRubroNegra {
         return RSD(no);
     }
 
-    private NoRB rebalanceamento(NoRB no) {
+    private void rebalanceamento(NoRB no) {
+        while (no != this.raiz && no.getPai().getCor() == NoRB.Cores.V) {
 
-        while (no != null && no != this.raiz && no.getPai().getCor() == NoRB.Cores.V) {
-            NoRB atual = no.getPai();
-            NoRB paiAtual = atual.getPai();
+            NoRB pai = no.getPai();
+            NoRB avo = pai.getPai();
 
-            if (paiAtual == null) {
+            if (avo == null) {
                 break;
             }
 
-            if (atual == paiAtual.getFE()) {
-                NoRB irmaoDireito = paiAtual.getFD();
+            // pai está à esquerda do avô
+            if (pai == avo.getFE()) {
+                NoRB tio = avo.getFD();
 
-                if ((irmaoDireito != null) && irmaoDireito.getCor() == NoRB.Cores.V) {
-                    atual.setCor(NoRB.Cores.P);
-                    irmaoDireito.setCor(NoRB.Cores.P);
-                    paiAtual.setCor(NoRB.Cores.V);
-                    no = paiAtual;
+                // CASO 1: tio vermelho
+                if (cor(tio) == NoRB.Cores.V) {
+                    pai.setCor(NoRB.Cores.P);
+                    tio.setCor(NoRB.Cores.P);
+                    avo.setCor(NoRB.Cores.V);
+                    no = avo;
                 }
+
                 else {
-                    if (no == atual.getFD()) {
-                        RDD(paiAtual);
-                        NoRB novoTopo = paiAtual.getPai();
-                        novoTopo.setCor(NoRB.Cores.P);
-                        novoTopo.getFE().setCor(NoRB.Cores.V);
-                        novoTopo.getFD().setCor(NoRB.Cores.V);
-                        no = novoTopo;
-                    } else {
-                        RSD(paiAtual);
-                        NoRB novoTopo = paiAtual.getPai();
-                        novoTopo.setCor(NoRB.Cores.P);
-                        novoTopo.getFE().setCor(NoRB.Cores.V);
-                        novoTopo.getFD().setCor(NoRB.Cores.V);
-                        no = novoTopo;
+                    // CASO 2: LR
+                    if (no == pai.getFD()) {
+                        no = pai;
+                        RSE(no);
+                        pai = no.getPai();
+                        avo = pai.getPai();
                     }
+
+                    // CASO 3: LL
+                    pai.setCor(NoRB.Cores.P);
+                    avo.setCor(NoRB.Cores.V);
+                    RSD(avo);
                 }
-            } else {
-                NoRB irmaoEsquerdo = paiAtual.getFE();
+            }
 
-                if ((irmaoEsquerdo != null) && irmaoEsquerdo.getCor() == NoRB.Cores.V) {
-                    atual.setCor(NoRB.Cores.P);
-                    irmaoEsquerdo.setCor(NoRB.Cores.P);
-                    paiAtual.setCor(NoRB.Cores.V);
-                    no = paiAtual;
-                } else {
-                    if (no == atual.getFE()) {
-                        RDE(paiAtual);
-                        NoRB novoTopo = paiAtual.getPai();
+            // casos espelhados
+            else {
+                NoRB tio = avo.getFE();
 
-                        novoTopo.setCor(NoRB.Cores.P);
-                        novoTopo.getFE().setCor(NoRB.Cores.V);
-                        novoTopo.getFD().setCor(NoRB.Cores.V);
-                        no = novoTopo;
-                    } else {
-                        RSE(paiAtual);
-                        NoRB novoTopo = paiAtual.getPai();
-                        novoTopo.setCor(NoRB.Cores.P);
-                        novoTopo.getFE().setCor(NoRB.Cores.V);
-                        novoTopo.getFD().setCor(NoRB.Cores.V);
-                        no = novoTopo;
+                // CASO 1
+                if (cor(tio) == NoRB.Cores.V) {
+                    pai.setCor(NoRB.Cores.P);
+                    tio.setCor(NoRB.Cores.P);
+                    avo.setCor(NoRB.Cores.V);
+                    no = avo;
+                }
+
+                else {
+                    // CASO 2: RL
+                    if (no == pai.getFE()) {
+                        no = pai;
+                        RSD(no);
+                        pai = no.getPai();
+                        avo = pai.getPai();
                     }
+
+                    // CASO 3: RR
+                    pai.setCor(NoRB.Cores.P);
+                    avo.setCor(NoRB.Cores.V);
+                    RSE(avo);
                 }
             }
         }
+
         this.raiz.setCor(NoRB.Cores.P);
-        return no;
     }
 
 
@@ -328,15 +494,126 @@ public class ArvoreRubroNegra {
         preencherMatriz(no.getFD(), mat, linha + 1, meio + 1, dir);
     }
 
-    public static void main(String args[]){
-        ArvoreRubroNegra teste = new ArvoreRubroNegra();
-        teste.inserir(3);
-        teste.inserir(2);
-        teste.inserir(1);
-        //teste.inserir(1);
-        //teste.inserir(3);
-        //teste.inserir(5);
-        //teste.inserir(7);
-        teste.desenharArvore();
+    public static void main(String[] args) throws NoInexistente {
+        // Testes adaptados: remover na ordem inversa de inserção
+        runCase("RSD", new int[]{30, 20, 10}, new int[]{20, 10, 30});
+        runCase("RSE", new int[]{10, 20, 30}, new int[]{20, 30, 10});
+        runCase("RDD", new int[]{30, 10, 20}, new int[]{10, 20, 30});
+        runCase("RDE", new int[]{10, 30, 20}, new int[]{30, 20, 10});
+        runCase("Misto", new int[]{41, 38, 31, 12, 19, 8, 50, 60, 55, 54}, new int[]{12, 60, 38, 54, 41, 8, 31, 55, 50, 19});
+        runCase(
+            "DoisFilhos",
+            new int[]{50, 30, 70, 20, 40, 60, 80},
+            new int[]{50, 70, 30, 60, 80, 20, 40}
+        );
+
+        runCase(
+            "RaizRepetida",
+            new int[]{10, 5, 15, 3, 7},
+            new int[]{10, 7, 5, 15, 3}
+        );
+
+        System.out.println("Todos os testes de insercao e remocao passaram.");
+    }
+
+    private static void runCase(String nome, int[] insercoes, int[] remocoes) {
+        ArvoreRubroNegra arvore = new ArvoreRubroNegra();
+        System.out.println("\n===== Caso " + nome + " =====");
+        int tamanhoEsperado = 0;
+
+        for (int v : insercoes) {
+            arvore.inserir(v);
+            tamanhoEsperado++;
+            System.out.println("\nInserindo: " + v);
+            arvore.desenharArvore();
+            validateOrThrow(arvore, nome + " apos inserir " + v);
+            validateSizeOrThrow(arvore, tamanhoEsperado, nome + " apos inserir " + v);
+        }
+
+        for (int v : remocoes) {
+            arvore.remover(v);
+            tamanhoEsperado--;
+            System.out.println("\nRemovendo: " + v);
+            arvore.desenharArvore();
+            validateOrThrow(arvore, nome + " apos remover " + v);
+            validateSizeOrThrow(arvore, tamanhoEsperado, nome + " apos remover " + v);
+            validateRemovedOrThrow(arvore, v, nome + " apos remover " + v);
+        }
+
+        if (!arvore.isEmpty()) {
+            throw new IllegalStateException("Arvore deveria estar vazia ao fim de " + nome);
+        }
+
+        System.out.println("OK: " + nome);
+    }
+
+    private static void validateRemovedOrThrow(ArvoreRubroNegra arvore, int valor, String contexto) {
+        if (arvore.buscar(arvore.raiz(), valor) != null) {
+            throw new IllegalStateException("Elemento " + valor + " ainda encontrado em " + contexto);
+        }
+    }
+
+    private static void validateSizeOrThrow(ArvoreRubroNegra arvore, int esperado, String contexto) {
+        if (arvore.size() != esperado) {
+            throw new IllegalStateException("Tamanho incorreto em " + contexto + ": esperado " + esperado + ", obtido " + arvore.size());
+        }
+    }
+
+    private static void validateOrThrow(ArvoreRubroNegra arvore, String contexto) {
+        NoRB raiz = arvore.raiz();
+
+        if (raiz == null) {
+            return;
+        }
+
+        if (!NoRB.Cores.P.equals(raiz.getCor())) {
+            throw new IllegalStateException("Raiz nao-preta em " + contexto);
+        }
+
+        if (!isBST(raiz, null, null)) {
+            throw new IllegalStateException("Violacao BST em " + contexto);
+        }
+
+        if (hasRedRedViolation(raiz)) {
+            throw new IllegalStateException("Violacao vermelho-vermelho em " + contexto);
+        }
+
+        int blackHeight = blackHeightOrFail(raiz);
+
+        if (blackHeight < 0) {
+            throw new IllegalStateException("Altura negra inconsistente em " + contexto);
+        }
+    }
+
+    private static boolean hasRedRedViolation(NoRB no) {
+        if (no == null) {
+            return false;
+        }
+
+        if (NoRB.Cores.V.equals(no.getCor())) {
+            NoRB esq = no.getFE();
+            NoRB dir = no.getFD();
+            if ((esq != null && NoRB.Cores.V.equals(esq.getCor())) || (dir != null && NoRB.Cores.V.equals(dir.getCor()))) {
+                return true;
+            }
+        }
+
+        return hasRedRedViolation(no.getFE()) || hasRedRedViolation(no.getFD());
+    }
+
+    private static int blackHeightOrFail(NoRB no) {
+        if (no == null) {
+            return 1;
+        }
+
+        int esquerda = blackHeightOrFail(no.getFE());
+        int direita = blackHeightOrFail(no.getFD());
+
+        if (esquerda < 0 || direita < 0 || esquerda != direita) {
+            return -1;
+        }
+
+        int atual = NoRB.Cores.P.equals(no.getCor()) ? 1 : 0;
+        return esquerda + atual;
     }
 }
