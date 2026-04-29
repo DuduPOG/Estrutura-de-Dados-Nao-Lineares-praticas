@@ -116,13 +116,13 @@ public class ArvoreRubroNegra {
         if (alvo.getFE() == null) {
             sucessor = alvo.getFD();
             paiSucessor = alvo.getPai();
-            transplantar(alvo, sucessor);
+            substituir(alvo, sucessor);
 
         }
         else if (alvo.getFD() == null) {
             sucessor = alvo.getFE();
             paiSucessor = alvo.getPai();
-            transplantar(alvo, sucessor);
+            substituir(alvo, sucessor);
         }
         else {
             substituto = NoSubstituto(alvo.getFD());
@@ -137,12 +137,12 @@ public class ArvoreRubroNegra {
                 }
             } else {
                 paiSucessor = substituto.getPai();
-                transplantar(substituto, substituto.getFD());
+                substituir(substituto, substituto.getFD());
                 substituto.setFD(alvo.getFD());
                 substituto.getFD().setPai(substituto);
             }
 
-            transplantar(alvo, substituto);
+            substituir(alvo, substituto);
 
             substituto.setFE(alvo.getFE());
             substituto.getFE().setPai(substituto);
@@ -253,7 +253,7 @@ public class ArvoreRubroNegra {
         }
     }
 
-    private void transplantar(NoRB antigo, NoRB substituto) {
+    private void substituir(NoRB antigo, NoRB substituto) {
         if (antigo.getPai() == null) {
             this.raiz = substituto;
         }
@@ -455,3 +455,4 @@ public class ArvoreRubroNegra {
        ArvoreRubroNegra teste = new ArvoreRubroNegra();
     }
 }
+ 
