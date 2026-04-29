@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class NoB{
 
     private Object[] chaves;
@@ -8,10 +11,68 @@ public class NoB{
     
     private int numChaves; // Número atual de chaves
 
+    private boolean folha;
+
     public NoB(int t) {
         this.t = t; // Grau ou Ordem
         this.chaves = new Object[2 * t - 1]; // 2t – 1 chaves
         this.filhos = new NoB[2 * t]; // 2t filhos
         this.numChaves = 0; // Inicialmente sem chaves
+        this.folha = true;
+    }
+
+    public Object getChave(int i) {
+        return chaves[i];
+    }
+    
+    public void setChave(int i, Object chave) {
+        this.chaves[i] = chave;
+    }
+    
+    public int getT() {
+        return t;
+    }
+    
+    public void setFilho(int i, NoB filho) {
+        this.filhos[i] = filho;
+    }
+
+    public NoB getFilho(int i) {
+        return filhos[i];
+    }
+    
+    
+    public int getNumChaves() {
+        return numChaves;
+    }
+    
+    public void increaseNumChaves() {
+        if (numChaves < 2 * t - 1) {
+            this.numChaves++;
+        }
+    }
+    
+    public void decreaseNumChaves() {
+        if(numChaves >= t - 1) {
+            this.numChaves--;
+        }
+    }
+
+    public void setFolha(boolean b){
+        this.folha = b;
+    }
+
+    public boolean getFolha(){
+        return this.folha;
+    }
+
+    public Iterator<NoB> iteratorFilhos(){
+        ArrayList<NoB> filhosArvore = new ArrayList<>();
+        for (int i = 0; i <= numChaves; ++i){
+            if (filhos[i] != null) {
+                filhosArvore.add(this.filhos[i]);
+            }
+        }
+        return filhosArvore.iterator();
     }
 }
