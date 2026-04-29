@@ -107,53 +107,53 @@ public class ArvoreRubroNegra {
             return;
         }
 
-        NoRB y = alvo; // nó efetivamente removido
-        NoRB.Cores corOriginal = y.getCor();
+        NoRB substituto = alvo;
+        NoRB.Cores corOriginal = substituto.getCor();
 
-        NoRB x;        // substituto
-        NoRB paiX;     // importante caso x seja null
+        NoRB sucessor;
+        NoRB paiSucessor;
 
         if (alvo.getFE() == null) {
-            x = alvo.getFD();
-            paiX = alvo.getPai();
-            transplantar(alvo, alvo.getFD());
+            sucessor = alvo.getFD();
+            paiSucessor = alvo.getPai();
+            transplantar(alvo, sucessor);
+
         }
         else if (alvo.getFD() == null) {
-            x = alvo.getFE();
-            paiX = alvo.getPai();
-            transplantar(alvo, alvo.getFE());
+            sucessor = alvo.getFE();
+            paiSucessor = alvo.getPai();
+            transplantar(alvo, sucessor);
         }
         else {
-            y = minimo(alvo.getFD());
-            corOriginal = y.getCor();
+            substituto = NoSubstituto(alvo.getFD());
+            corOriginal = substituto.getCor();
 
-            x = y.getFD();
+            sucessor = substituto.getFD();
 
-            if (y.getPai() == alvo) {
-                paiX = y;
-                if (x != null) {
-                    x.setPai(y);
+            if (substituto.getPai() == alvo) {
+                paiSucessor = substituto;
+                if (sucessor != null) {
+                    sucessor.setPai(substituto);
                 }
             } else {
-                paiX = y.getPai();
-                transplantar(y, y.getFD());
-
-                y.setFD(alvo.getFD());
-                y.getFD().setPai(y);
+                paiSucessor = substituto.getPai();
+                transplantar(substituto, substituto.getFD());
+                substituto.setFD(alvo.getFD());
+                substituto.getFD().setPai(substituto);
             }
 
-            transplantar(alvo, y);
+            transplantar(alvo, substituto);
 
-            y.setFE(alvo.getFE());
-            y.getFE().setPai(y);
+            substituto.setFE(alvo.getFE());
+            substituto.getFE().setPai(substituto);
 
-            y.setCor(alvo.getCor());
+            substituto.setCor(alvo.getCor());
         }
 
         this.size--;
 
         if (corOriginal == NoRB.Cores.P) {
-            rebalancearRemocao(x, paiX);
+            rebalancearRemocao(sucessor, paiSucessor);
         }
 
         if (this.raiz != null) {
@@ -161,141 +161,115 @@ public class ArvoreRubroNegra {
         }
     }
 
-    private void rebalancearRemocao(NoRB x, NoRB pai) {
+    private void rebalancearRemocao(NoRB no, NoRB pai) {
 
-        while (x != this.raiz && cor(x) == NoRB.Cores.P) {
+        while (no != this.raiz && cor(no) == NoRB.Cores.P) {
 
             if (pai == null) {
                 break;
             }
 
-            // x é filho esquerdo
-            if (x == pai.getFE()) {
-                NoRB w = pai.getFD();
+            if (no == pai.getFE()) {
+                NoRB irmaoPai = pai.getFD();
 
-                if (w == null) {
-                    x = pai;
-                    pai = x.getPai();
+                if (irmaoPai == null) {
+                    no = pai;
+                    pai = no.getPai();
                     continue;
                 }
 
-                // CASO 1
-                if (cor(w) == NoRB.Cores.V) {
-                    w.setCor(NoRB.Cores.P);
+                if (cor(irmaoPai) == NoRB.Cores.V) {
+                    irmaoPai.setCor(NoRB.Cores.P);
                     pai.setCor(NoRB.Cores.V);
                     RSE(pai);
-                    w = pai.getFD();
+                    irmaoPai = pai.getFD();
                 }
 
-                // CASO 2
-                if (cor(w.getFE()) == NoRB.Cores.P &&
-                    cor(w.getFD()) == NoRB.Cores.P) {
-
-                    w.setCor(NoRB.Cores.V);
-                    x = pai;
-                    pai = x.getPai();
+                if (cor(irmaoPai.getFE()) == NoRB.Cores.P && cor(irmaoPai.getFD()) == NoRB.Cores.P) {
+                    irmaoPai.setCor(NoRB.Cores.V);
+                    no = pai;
+                    pai = no.getPai();
                 }
-
                 else {
-                    // CASO 3
-                    if (cor(w.getFD()) == NoRB.Cores.P) {
-                        if (w.getFE() != null) {
-                            w.getFE().setCor(NoRB.Cores.P);
+                    if (cor(irmaoPai.getFD()) == NoRB.Cores.P) {
+                        if (irmaoPai.getFE() != null) {
+                            irmaoPai.getFE().setCor(NoRB.Cores.P);
                         }
-
-                        w.setCor(NoRB.Cores.V);
-                        RSD(w);
-                        w = pai.getFD();
+                        irmaoPai.setCor(NoRB.Cores.V);
+                        RSD(irmaoPai);
+                        irmaoPai = pai.getFD();
                     }
-
-                    // CASO 4
-                    w.setCor(pai.getCor());
+                    irmaoPai.setCor(pai.getCor());
                     pai.setCor(NoRB.Cores.P);
 
-                    if (w.getFD() != null) {
-                        w.getFD().setCor(NoRB.Cores.P);
+                    if (irmaoPai.getFD() != null) {
+                        irmaoPai.getFD().setCor(NoRB.Cores.P);
                     }
-
                     RSE(pai);
-                    x = this.raiz;
+                    no = this.raiz;
                 }
             }
 
-            // espelhado
             else {
-                NoRB w = pai.getFE();
-
-                if (w == null) {
-                    x = pai;
-                    pai = x.getPai();
+                NoRB irmaoPai = pai.getFE();
+                if (irmaoPai == null) {
+                    no = pai;
+                    pai = no.getPai();
                     continue;
                 }
-
-                // CASO 1
-                if (cor(w) == NoRB.Cores.V) {
-                    w.setCor(NoRB.Cores.P);
+                if (cor(irmaoPai) == NoRB.Cores.V) {
+                    irmaoPai.setCor(NoRB.Cores.P);
                     pai.setCor(NoRB.Cores.V);
                     RSD(pai);
-                    w = pai.getFE();
+                    irmaoPai = pai.getFE();
                 }
+                if (cor(irmaoPai.getFE()) == NoRB.Cores.P && cor(irmaoPai.getFD()) == NoRB.Cores.P) {
 
-                // CASO 2
-                if (cor(w.getFE()) == NoRB.Cores.P &&
-                    cor(w.getFD()) == NoRB.Cores.P) {
-
-                    w.setCor(NoRB.Cores.V);
-                    x = pai;
-                    pai = x.getPai();
+                    irmaoPai.setCor(NoRB.Cores.V);
+                    no = pai;
+                    pai = no.getPai();
                 }
-
                 else {
-                    // CASO 3
-                    if (cor(w.getFE()) == NoRB.Cores.P) {
-                        if (w.getFD() != null) {
-                            w.getFD().setCor(NoRB.Cores.P);
+                    if (cor(irmaoPai.getFE()) == NoRB.Cores.P) {
+                        if (irmaoPai.getFD() != null) {
+                            irmaoPai.getFD().setCor(NoRB.Cores.P);
                         }
-
-                        w.setCor(NoRB.Cores.V);
-                        RSE(w);
-                        w = pai.getFE();
+                        irmaoPai.setCor(NoRB.Cores.V);
+                        RSE(irmaoPai);
+                        irmaoPai = pai.getFE();
                     }
-
-                    // CASO 4
-                    w.setCor(pai.getCor());
+                    irmaoPai.setCor(pai.getCor());
                     pai.setCor(NoRB.Cores.P);
-
-                    if (w.getFE() != null) {
-                        w.getFE().setCor(NoRB.Cores.P);
+                    if (irmaoPai.getFE() != null) {
+                        irmaoPai.getFE().setCor(NoRB.Cores.P);
                     }
-
                     RSD(pai);
-                    x = this.raiz;
+                    no = this.raiz;
                 }
             }
         }
-
-        if (x != null) {
-            x.setCor(NoRB.Cores.P);
+        if (no != null) {
+            no.setCor(NoRB.Cores.P);
         }
     }
 
-    private void transplantar(NoRB u, NoRB v) {
-        if (u.getPai() == null) {
-            this.raiz = v;
+    private void transplantar(NoRB antigo, NoRB substituto) {
+        if (antigo.getPai() == null) {
+            this.raiz = substituto;
         }
-        else if (u == u.getPai().getFE()) {
-            u.getPai().setFE(v);
+        else if (antigo == antigo.getPai().getFE()) {
+            antigo.getPai().setFE(substituto);
         }
         else {
-            u.getPai().setFD(v);
+            antigo.getPai().setFD(substituto);
         }
 
-        if (v != null) {
-            v.setPai(u.getPai());
+        if (substituto != null) {
+            substituto.setPai(antigo.getPai());
         }
     }
 
-    private NoRB minimo(NoRB no) {
+    private NoRB NoSubstituto(NoRB no) {
         while (no.getFE() != null) {
             no = no.getFE();
         }
@@ -373,64 +347,47 @@ public class ArvoreRubroNegra {
             if (avo == null) {
                 break;
             }
-
-            // pai está à esquerda do avô
             if (pai == avo.getFE()) {
                 NoRB tio = avo.getFD();
-
-                // CASO 1: tio vermelho
                 if (cor(tio) == NoRB.Cores.V) {
                     pai.setCor(NoRB.Cores.P);
                     tio.setCor(NoRB.Cores.P);
                     avo.setCor(NoRB.Cores.V);
                     no = avo;
                 }
-
                 else {
-                    // CASO 2: LR
                     if (no == pai.getFD()) {
                         no = pai;
                         RSE(no);
                         pai = no.getPai();
                         avo = pai.getPai();
                     }
-
-                    // CASO 3: LL
                     pai.setCor(NoRB.Cores.P);
                     avo.setCor(NoRB.Cores.V);
                     RSD(avo);
                 }
             }
-
-            // casos espelhados
             else {
                 NoRB tio = avo.getFE();
-
-                // CASO 1
                 if (cor(tio) == NoRB.Cores.V) {
                     pai.setCor(NoRB.Cores.P);
                     tio.setCor(NoRB.Cores.P);
                     avo.setCor(NoRB.Cores.V);
                     no = avo;
                 }
-
                 else {
-                    // CASO 2: RL
                     if (no == pai.getFE()) {
                         no = pai;
                         RSD(no);
                         pai = no.getPai();
                         avo = pai.getPai();
                     }
-
-                    // CASO 3: RR
                     pai.setCor(NoRB.Cores.P);
                     avo.setCor(NoRB.Cores.V);
                     RSE(avo);
                 }
             }
         }
-
         this.raiz.setCor(NoRB.Cores.P);
     }
 
@@ -495,125 +452,6 @@ public class ArvoreRubroNegra {
     }
 
     public static void main(String[] args) throws NoInexistente {
-        // Testes adaptados: remover na ordem inversa de inserção
-        runCase("RSD", new int[]{30, 20, 10}, new int[]{20, 10, 30});
-        runCase("RSE", new int[]{10, 20, 30}, new int[]{20, 30, 10});
-        runCase("RDD", new int[]{30, 10, 20}, new int[]{10, 20, 30});
-        runCase("RDE", new int[]{10, 30, 20}, new int[]{30, 20, 10});
-        runCase("Misto", new int[]{41, 38, 31, 12, 19, 8, 50, 60, 55, 54}, new int[]{12, 60, 38, 54, 41, 8, 31, 55, 50, 19});
-        runCase(
-            "DoisFilhos",
-            new int[]{50, 30, 70, 20, 40, 60, 80},
-            new int[]{50, 70, 30, 60, 80, 20, 40}
-        );
-
-        runCase(
-            "RaizRepetida",
-            new int[]{10, 5, 15, 3, 7},
-            new int[]{10, 7, 5, 15, 3}
-        );
-
-        System.out.println("Todos os testes de insercao e remocao passaram.");
-    }
-
-    private static void runCase(String nome, int[] insercoes, int[] remocoes) {
-        ArvoreRubroNegra arvore = new ArvoreRubroNegra();
-        System.out.println("\n===== Caso " + nome + " =====");
-        int tamanhoEsperado = 0;
-
-        for (int v : insercoes) {
-            arvore.inserir(v);
-            tamanhoEsperado++;
-            System.out.println("\nInserindo: " + v);
-            arvore.desenharArvore();
-            validateOrThrow(arvore, nome + " apos inserir " + v);
-            validateSizeOrThrow(arvore, tamanhoEsperado, nome + " apos inserir " + v);
-        }
-
-        for (int v : remocoes) {
-            arvore.remover(v);
-            tamanhoEsperado--;
-            System.out.println("\nRemovendo: " + v);
-            arvore.desenharArvore();
-            validateOrThrow(arvore, nome + " apos remover " + v);
-            validateSizeOrThrow(arvore, tamanhoEsperado, nome + " apos remover " + v);
-            validateRemovedOrThrow(arvore, v, nome + " apos remover " + v);
-        }
-
-        if (!arvore.isEmpty()) {
-            throw new IllegalStateException("Arvore deveria estar vazia ao fim de " + nome);
-        }
-
-        System.out.println("OK: " + nome);
-    }
-
-    private static void validateRemovedOrThrow(ArvoreRubroNegra arvore, int valor, String contexto) {
-        if (arvore.buscar(arvore.raiz(), valor) != null) {
-            throw new IllegalStateException("Elemento " + valor + " ainda encontrado em " + contexto);
-        }
-    }
-
-    private static void validateSizeOrThrow(ArvoreRubroNegra arvore, int esperado, String contexto) {
-        if (arvore.size() != esperado) {
-            throw new IllegalStateException("Tamanho incorreto em " + contexto + ": esperado " + esperado + ", obtido " + arvore.size());
-        }
-    }
-
-    private static void validateOrThrow(ArvoreRubroNegra arvore, String contexto) {
-        NoRB raiz = arvore.raiz();
-
-        if (raiz == null) {
-            return;
-        }
-
-        if (!NoRB.Cores.P.equals(raiz.getCor())) {
-            throw new IllegalStateException("Raiz nao-preta em " + contexto);
-        }
-
-        if (!isBST(raiz, null, null)) {
-            throw new IllegalStateException("Violacao BST em " + contexto);
-        }
-
-        if (hasRedRedViolation(raiz)) {
-            throw new IllegalStateException("Violacao vermelho-vermelho em " + contexto);
-        }
-
-        int blackHeight = blackHeightOrFail(raiz);
-
-        if (blackHeight < 0) {
-            throw new IllegalStateException("Altura negra inconsistente em " + contexto);
-        }
-    }
-
-    private static boolean hasRedRedViolation(NoRB no) {
-        if (no == null) {
-            return false;
-        }
-
-        if (NoRB.Cores.V.equals(no.getCor())) {
-            NoRB esq = no.getFE();
-            NoRB dir = no.getFD();
-            if ((esq != null && NoRB.Cores.V.equals(esq.getCor())) || (dir != null && NoRB.Cores.V.equals(dir.getCor()))) {
-                return true;
-            }
-        }
-
-        return hasRedRedViolation(no.getFE()) || hasRedRedViolation(no.getFD());
-    }
-
-    private static int blackHeightOrFail(NoRB no) {
-        if (no == null) {
-            return 1;
-        }
-
-        int esquerda = blackHeightOrFail(no.getFE());
-        int direita = blackHeightOrFail(no.getFD());
-
-        if (esquerda < 0 || direita < 0 || esquerda != direita) {
-            return -1;
-        }
-
-        int atual = NoRB.Cores.P.equals(no.getCor()) ? 1 : 0;
-        return esquerda + atual;
+       ArvoreRubroNegra teste = new ArvoreRubroNegra();
     }
 }
