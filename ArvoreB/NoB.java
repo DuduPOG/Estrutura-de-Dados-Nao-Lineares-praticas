@@ -20,13 +20,13 @@ public class NoB{
         this.numChaves = 0; // Inicialmente sem chaves
         this.folha = true;
     }
-
-    public Object getChave(int i) {
-        return chaves[i];
-    }
     
     public void setChave(int i, Object chave) {
         this.chaves[i] = chave;
+    }
+
+    public Object getChave(int i) {
+        return chaves[i];
     }
     
     public int getT() {
@@ -40,7 +40,6 @@ public class NoB{
     public NoB getFilho(int i) {
         return filhos[i];
     }
-    
     
     public int getNumChaves() {
         return numChaves;
@@ -62,7 +61,7 @@ public class NoB{
         this.folha = b;
     }
 
-    public boolean getFolha(){
+    public boolean getIsFolha(){
         return this.folha;
     }
 
