@@ -1,0 +1,231 @@
+Link do markdown: https://chatgpt.com/s/t_69f38a8834508191846efb60b490da5f 
+
+Aqui vai um resumo focado no comportamento didático da sua AVL, destacando principalmente inserção, remoção e balanceamento.
+
+🌳 Visão geral da implementação
+Sua árvore mantém:
+
+FB (fator de balanceamento) em cada nó
+→ diferença de altura entre subárvores (esquerda – direita)
+
+Rebalanceamento automático via rotações:
+
+RSD (rotação simples à direita)
+
+RSE (rotação simples à esquerda)
+
+RDD (dupla direita)
+
+RDE (dupla esquerda)
+
+A classe ResultadoRemocao
+→ carrega:
+
+o novo nó da subárvore
+
+um boolean (mudouAltura) indicando se a altura mudou (essencial na remoção)
+
+🔵 Inserção (método inserir)
+1. Inserção estilo ABB (árvore binária de busca)
+Percorre a árvore até achar posição nula
+
+Insere o novo nó como folha
+
+2. Atualização inicial do FB (pai do novo nó)
+Se o pai era folha:
+
+FB vira +1 (inserção à esquerda)
+
+ou -1 (inserção à direita)
+
+Se já tinha filho:
+
+FB vira 0 (altura não cresce)
+
+👉 Se o FB do pai vira 0, a inserção não propaga desbalanceamento, então o método termina.
+
+3. Subida na árvore (propagação)
+Percorre os ancestrais atualizando FB:
+
+Se veio da esquerda → FB + 1
+
+Se veio da direita → FB - 1
+
+4. Detectando desbalanceamento
+Quando:
+
+FB > 1 → desbalanceamento à esquerda
+
+FB < -1 → desbalanceamento à direita
+
+Escolha da rotação:
+
+Caso	Condição	Rotação
+LL	filho FB ≥ 0	RSD
+LR	filho FB < 0	RDD
+RR	filho FB ≤ 0	RSE
+RL	filho FB > 0	RDE
+👉 Após rotação, para de subir (didático e correto)
+
+🔴 Remoção (método principal)
+A remoção é recursiva (removerRec) e mais complexa porque:
+
+Pode diminuir a altura da árvore
+
+Pode exigir múltiplos rebalanceamentos
+
+🧠 Ideia central
+Cada chamada retorna:
+
+ResultadoRemocao(no, mudouAltura)
+no → nova raiz da subárvore
+
+mudouAltura → se a altura diminuiu
+
+⚠️ Os 3 casos de remoção (ESSENCIAL)
+1. ❌ Nó sem filhos (folha)
+if (no.getFE() == null && no.getFD() == null)
+Na prática seu código cobre isso dentro do caso:
+
+if (no.getFE() == null)
+O que acontece:
+Retorna null
+
+Altura diminui (true)
+
+size--
+
+👉 Efeito: remove direto, simples
+
+2. 🔹 Nó com 1 filho
+a) Só filho à direita
+if (no.getFE() == null)
+Retorna o filho direito
+
+Ajusta o pai
+
+size--
+
+altura diminui (true)
+
+b) Só filho à esquerda
+if (no.getFD() == null)
+Retorna o filho esquerdo
+
+Ajusta o pai
+
+size--
+
+altura diminui (true)
+
+👉 Em ambos:
+
+o nó removido é “substituído” diretamente pelo filho
+
+3. 🔺 Nó com 2 filhos (mais importante)
+Passos:
+Encontra o sucessor em-ordem
+
+No temp = no.getFD();
+while (temp.getFE() != null)
+    temp = temp.getFE();
+👉 menor da subárvore direita
+
+Copia o valor:
+
+no.setValue(temp.getValue());
+Remove o sucessor recursivamente:
+
+ResultadoRemocao sucessor = removerRec(no.getFD(), temp.getValue());
+Ajusta ponteiros:
+
+no.setFD(sucessor.no);
+Atualiza FB:
+
+no.setFB(no.getFB() + 1);
+(porque removeu da direita)
+
+👉 Aqui está o ponto didático importante:
+
+A remoção real acontece lá embaixo
+
+Esse caso vira, na prática, um caso 1 ou 2
+
+🔁 Rebalanceamento após remoção
+Depois de tratar o nó:
+
+1. Atualiza FB:
+Removeu da esquerda → FB - 1
+
+Removeu da direita → FB + 1
+
+2. Verifica desbalanceamento
+Mesma lógica da inserção:
+
+FB > 1 → esquerda pesada
+
+FB < -1 → direita pesada
+
+Escolha:
+
+Caso	Rotação
+LL	RSD
+LR	RDD
+RR	RSE
+RL	RDE
+3. Decide se altura mudou
+boolean mudouAltura = novoNo.getFB() == 0;
+👉 Isso é crucial:
+
+Se após rotação o FB vira 0 → altura diminuiu
+
+Senão → altura não mudou
+
+🔄 Diferença importante: Inserção vs Remoção
+Inserção	Remoção
+Para após 1 rotação	Pode continuar subindo
+Altura aumenta	Altura pode diminuir
+Mais simples	Mais complexa
+🧩 Rotações
+✔️ Simples
+RSD → corrige esquerda-esquerda
+
+RSE → corrige direita-direita
+
+✔️ Duplas
+RDD = esquerda-direita
+
+RDE = direita-esquerda
+
+👉 Todas:
+
+reajustam ponteiros
+
+corrigem pais
+
+recalculam FB
+
+✅ Conclusão didática
+Sua implementação:
+
+Segue fielmente a lógica clássica de AVL
+
+Separa bem:
+
+inserção (iterativa)
+
+remoção (recursiva)
+
+Usa corretamente:
+
+FB incremental
+
+controle de altura via mudouAltura
+
+👉 Principal ponto forte didático:
+
+A remoção está bem estruturada nos 3 casos clássicos
+
+E o uso de ResultadoRemocao deixa explícito o fluxo de altura
+
+Se quiser, posso te mostrar um passo a passo visual de uma remoção com rotação, que costuma ser a parte mais difícil de internalizar.
