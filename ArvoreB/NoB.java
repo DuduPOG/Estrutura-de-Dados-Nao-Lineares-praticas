@@ -21,6 +21,10 @@ public class NoB{
         this.folha = true;
     }
     
+    public int getT() {
+        return t;
+    }
+
     public void setChave(int i, Object chave) {
         this.chaves[i] = chave;
     }
@@ -29,8 +33,8 @@ public class NoB{
         return chaves[i];
     }
     
-    public int getT() {
-        return t;
+    public int getNumFilhos(){
+        return filhos.length;
     }
     
     public void setFilho(int i, NoB filho) {
@@ -52,7 +56,7 @@ public class NoB{
     }
     
     public void decreaseNumChaves() {
-        if(numChaves >= t - 1) {
+        if(numChaves > 0) {
             this.numChaves--;
         }
     }

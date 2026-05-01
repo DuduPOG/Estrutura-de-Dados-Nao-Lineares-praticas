@@ -32,9 +32,25 @@ public class ArvoreB {
         return no.getIsFolha() == null;        
     }
 
-    public NoB buscar(NoB[] chaves){
+    public NoB buscar(Object chave){
+        NoB atual = this.raiz;
+        while (atual != null){
+            Object atualChave = atual.chaves[0]
+            for (int i = 0; i < atual.getNumChaves(); ++i){
+                atualChave = atual.chaves[i]
+                if (atualChave == chave){
+                    return atual
+                }
+            }
+            if (atualChave == )
+            }
+        }
+        for (int i = 0; i < this.raiz.getNumFilhos()); ++i){
 
+        }
     }
+
+    private NoB buscarRec()
 
     public void inserir(Object value){
     
