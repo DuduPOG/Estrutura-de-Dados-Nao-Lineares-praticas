@@ -19,8 +19,9 @@ public class ArvoreB {
     }
 
     public int altura(NoB<String> no) {
-        if (no == null) return -1;
-
+        if (no == null){
+            return -1;
+        }
         int altura = 0;
         NoB<String> atual = no;
 
@@ -28,7 +29,6 @@ public class ArvoreB {
             atual = atual.getFilho(0);
             altura++;
         }
-
         return altura;
     }
 
@@ -36,37 +36,27 @@ public class ArvoreB {
         return no.getIsFolha();
     }
 
-    // ================= BUSCA =================
-
     public NoB<String> buscar(String chave) {
 
         NoB<String> atual = this.raiz;
 
         while (atual != null) {
-
             int i = 0;
-
             while (i < atual.getNumChaves() &&
                    chave.compareTo(atual.getChave(i)) > 0) {
                 i++;
             }
-
             if (i < atual.getNumChaves() &&
                 chave.compareTo(atual.getChave(i)) == 0) {
                 return atual;
             }
-
             if (atual.getIsFolha()) {
                 return null;
             }
-
             atual = atual.getFilho(i);
         }
-
         return null;
     }
-
-    // ================= INSERÇÃO =================
 
     public void inserir(String value) {
 
@@ -80,32 +70,32 @@ public class ArvoreB {
 
         if (this.raiz.getNumChaves() == (2 * t - 1)) {
 
+            NoB<String> antigaRaiz = this.raiz;
             NoB<String> novaRaiz = new NoB<>(t);
             novaRaiz.setFolha(false);
-            novaRaiz.setFilho(0, this.raiz);
+            novaRaiz.setFilho(0, antigaRaiz);
 
-            NoB<String> cheio = this.raiz;
             NoB<String> novo = new NoB<>(t);
-            novo.setFolha(cheio.getIsFolha());
+            novo.setFolha(antigaRaiz.getIsFolha());
+
+            String meio = antigaRaiz.getChave(t - 1);
 
             for (int j = 0; j < t - 1; j++) {
-                novo.setChave(j, cheio.getChave(j + t));
+                novo.setChave(j, antigaRaiz.getChave(j + t));
             }
 
-            if (!cheio.getIsFolha()) {
+            if (!antigaRaiz.getIsFolha()) {
                 for (int j = 0; j < t; j++) {
-                    novo.setFilho(j, cheio.getFilho(j + t));
+                    novo.setFilho(j, antigaRaiz.getFilho(j + t));
                 }
             }
 
-            String meio = cheio.getChave(t - 1);
-
             for (int j = t - 1; j < 2 * t - 1; j++) {
-                cheio.setChave(j, null);
+                antigaRaiz.setChave(j, null);
             }
 
-            while (cheio.getNumChaves() > t - 1) {
-                cheio.decreaseNumChaves();
+            while (antigaRaiz.getNumChaves() > t - 1) {
+                antigaRaiz.decreaseNumChaves();
             }
 
             novaRaiz.setFilho(1, novo);
@@ -116,6 +106,7 @@ public class ArvoreB {
         }
 
         NoB<String> atual = this.raiz;
+
 
         while (true) {
 
@@ -155,6 +146,8 @@ public class ArvoreB {
                 NoB<String> novo = new NoB<>(t);
                 novo.setFolha(filho.getIsFolha());
 
+                String meio = filho.getChave(t - 1);
+
                 for (int j = 0; j < t - 1; j++) {
                     novo.setChave(j, filho.getChave(j + t));
                 }
@@ -164,8 +157,6 @@ public class ArvoreB {
                         novo.setFilho(j, filho.getFilho(j + t));
                     }
                 }
-
-                String meio = filho.getChave(t - 1);
 
                 for (int j = t - 1; j < 2 * t - 1; j++) {
                     filho.setChave(j, null);
@@ -197,7 +188,7 @@ public class ArvoreB {
         }
     }
 
-    public void remover(Comparable<String> value){
+    public void remover(String value){
 
         if (this.raiz == null){
             return;
@@ -205,95 +196,90 @@ public class ArvoreB {
 
         removerRec(this.raiz, value);
 
-        // ajuste da raiz (caso fique vazia)
         if (raiz.getNumChaves() == 0) {
             if (this.raiz.getIsFolha()) {
                 this.raiz = null;
-            } else {
+            } 
+            else {
                 this.raiz = this.raiz.getFilho(0);
             }
         }
     }
 
-    private void removerRec(NoB<String> no, Comparable<String> key) {
+    private void removerRec(NoB<String> no, String value) {
 
-        Comparable<String> chave = (Comparable<String>) key;
+        int indice = 0;
 
-        int idx = 0;
-
-        while (idx < no.getNumChaves() &&
-            chave.compareTo(no.getChave(idx)) > 0) {
-            idx++;
+        while (indice < no.getNumChaves() &&
+            value.compareTo(no.getChave(indice)) > 0) {
+            indice++;
         }
 
-        // CASO: chave encontrada
-        if (idx < no.getNumChaves() &&
-            chave.compareTo(no.getChave(idx)) == 0) {
+        if (indice < no.getNumChaves() &&
+            value.compareTo(no.getChave(indice)) == 0) {
 
             if (no.getIsFolha()) {
-                removerDeFolha(no, idx);
+                removerDeFolha(no, indice);
             } else {
-                removerDeInterno(no, idx);
+                removerDeInterno(no, indice);
             }
 
-        } else {
+        } 
+        else {
 
             if (no.getIsFolha()) {
-                return; // não existe
+                return;
             }
 
-            boolean ultimo = (idx == no.getNumChaves());
+            boolean ultimo = indice == no.getNumChaves();
 
-            // garante que filho[idx] tem >= t chaves
-            if (no.getFilho(idx).getNumChaves() < t) {
-                preencher(no, idx);
+            if (no.getFilho(indice).getNumChaves() < t) {
+                preencher(no, indice);
             }
 
-            if (ultimo && idx > no.getNumChaves()) {
-                removerRec(no.getFilho(idx - 1), key);
-            } else {
-                removerRec(no.getFilho(idx), key);
+            if (ultimo && indice > no.getNumChaves()) {
+                removerRec(no.getFilho(indice - 1), value);
+            } 
+            else {
+                removerRec(no.getFilho(indice), value);
             }
         }
     }
 
-    private void removerDeFolha(NoB<String> no, int idx) {
-        for (int i = idx + 1; i < no.getNumChaves(); i++) {
+    private void removerDeFolha(NoB<String> no, int indice) {
+        for (int i = indice + 1; i < no.getNumChaves(); i++) {
             no.setChave(i - 1, no.getChave(i));
         }
 
         no.setChave(no.getNumChaves() - 1, null);
         no.decreaseNumChaves();
+        this.size--;
     }
 
-    private void removerDeInterno(NoB<String> no, int idx) {
+    private void removerDeInterno(NoB<String> no, int indice) {
 
-        String k = no.getChave(idx);
+        String k = no.getChave(indice);
 
-        NoB<String> filhoEsq = no.getFilho(idx);
-        NoB<String> filhoDir = no.getFilho(idx + 1);
+        NoB<String> filhoEsquerdo = no.getFilho(indice);
+        NoB<String> filhoDireito = no.getFilho(indice + 1);
 
-        // 2a: predecessor
-        if (filhoEsq.getNumChaves() >= t) {
+        if (filhoEsquerdo.getNumChaves() >= t) {
 
-            String pred = getPredecessor(filhoEsq);
-            no.setChave(idx, pred);
-            removerRec(filhoEsq, pred);
-
-        }
-        // 2b: sucessor
-        else if (filhoDir.getNumChaves() >= t) {
-
-            String succ = getSucessor(filhoDir);
-            no.setChave(idx, succ);
-            removerRec(filhoDir, succ);
+            String pred = getPredecessor(filhoEsquerdo);
+            no.setChave(indice, pred);
+            removerRec(filhoEsquerdo, pred);
 
         }
-        // 2c: merge
+        else if (filhoDireito.getNumChaves() >= t) {
+
+            String succ = getSucessor(filhoDireito);
+            no.setChave(indice, succ);
+            removerRec(filhoDireito, succ);
+
+        }
         else {
-
-            merge(no, idx);
-            removerRec(filhoEsq, k);
+            merge(no, indice);
+            removerRec(filhoEsquerdo, k);
         }
     }
 
@@ -311,120 +297,135 @@ public class ArvoreB {
         return no.getChave(0);
     }
 
-    private void preencher(NoB<String> no, int idx) {
-        if (idx != 0 && no.getFilho(idx - 1).getNumChaves() >= t) {
-            emprestarDoAnterior(no, idx);
+    private void preencher(NoB<String> no, int indice) {
+        if (indice != 0 && no.getFilho(indice - 1).getNumChaves() >= t) {
+            emprestarDoAnterior(no, indice);
         }
-        else if (idx != no.getNumChaves() &&
-                no.getFilho(idx + 1).getNumChaves() >= t) {
-            emprestarDoProximo(no, idx);
+        else if (indice != no.getNumChaves() &&
+                no.getFilho(indice + 1).getNumChaves() >= t) {
+            emprestarDoProximo(no, indice);
         }
         else {
-            if (idx != no.getNumChaves()) {
-                merge(no, idx);
-            } else {
-                merge(no, idx - 1);
+            if (indice != no.getNumChaves()) {
+                merge(no, indice);
+            } 
+            else {
+                merge(no, indice - 1);
             }
         }
     }
 
-    private void emprestarDoAnterior(NoB<String> no, int idx) {
-        NoB<String> filho = no.getFilho(idx);
-        NoB<String> irmao = no.getFilho(idx - 1);
+    private void emprestarDoAnterior(NoB<String> no, int indice) {
 
-        // desloca filho para direita
-        for (int i = filho.getNumChaves() - 1; i >= 0; i--) {
+        NoB<String> filho = no.getFilho(indice);
+        NoB<String> irmao = no.getFilho(indice - 1);
+
+        int nFilho = filho.getNumChaves();
+        int nIrmao = irmao.getNumChaves();
+
+        for (int i = nFilho - 1; i >= 0; i--) {
             filho.setChave(i + 1, filho.getChave(i));
         }
 
         if (!filho.getIsFolha()) {
-            for (int i = filho.getNumChaves(); i >= 0; i--) {
+            for (int i = nFilho; i >= 0; i--) {
                 filho.setFilho(i + 1, filho.getFilho(i));
             }
         }
 
-        filho.setChave(0, no.getChave(idx - 1));
+        filho.setChave(0, no.getChave(indice - 1));
 
         if (!filho.getIsFolha()) {
-            filho.setFilho(0, irmao.getFilho(irmao.getNumChaves()));
+            filho.setFilho(0, irmao.getFilho(nIrmao));
         }
 
-        no.setChave(idx - 1, irmao.getChave(irmao.getNumChaves() - 1));
+        no.setChave(indice - 1, irmao.getChave(nIrmao - 1));
 
-        irmao.setChave(irmao.getNumChaves() - 1, null);
+        irmao.setChave(nIrmao - 1, null);
+        if (!irmao.getIsFolha()) {
+            irmao.setFilho(nIrmao, null);
+        }
+
         irmao.decreaseNumChaves();
         filho.increaseNumChaves();
     }
 
-    private void emprestarDoProximo(NoB<String> no, int idx) {
+    private void emprestarDoProximo(NoB<String> no, int indice) {
 
-        NoB<String> filho = no.getFilho(idx);
-        NoB<String> irmao = no.getFilho(idx + 1);
+        NoB<String> filho = no.getFilho(indice);
+        NoB<String> irmao = no.getFilho(indice + 1);
 
-        filho.setChave(filho.getNumChaves(), no.getChave(idx));
+        int nFilho = filho.getNumChaves();
+        int nIrmao = irmao.getNumChaves();
+
+        filho.setChave(nFilho, no.getChave(indice));
 
         if (!filho.getIsFolha()) {
-            filho.setFilho(filho.getNumChaves() + 1, irmao.getFilho(0));
+            filho.setFilho(nFilho + 1, irmao.getFilho(0));
         }
 
-        no.setChave(idx, irmao.getChave(0));
+        no.setChave(indice, irmao.getChave(0));
 
-        // shift no irmão
-        for (int i = 1; i < irmao.getNumChaves(); i++) {
+        for (int i = 1; i < nIrmao; i++) {
             irmao.setChave(i - 1, irmao.getChave(i));
         }
 
         if (!irmao.getIsFolha()) {
-            for (int i = 1; i <= irmao.getNumChaves(); i++) {
+            for (int i = 1; i <= nIrmao; i++) {
                 irmao.setFilho(i - 1, irmao.getFilho(i));
             }
         }
 
-        irmao.setChave(irmao.getNumChaves() - 1, null);
+        irmao.setChave(nIrmao - 1, null);
+        if (!irmao.getIsFolha()) {
+            irmao.setFilho(nIrmao, null);
+        }
+
         irmao.decreaseNumChaves();
         filho.increaseNumChaves();
     }
 
-    private void merge(NoB<String> no, int idx) {
-        NoB<String> filho = no.getFilho(idx);
-        NoB<String> irmao = no.getFilho(idx + 1);
+    private void merge(NoB<String> no, int indice) {
 
-        // puxa chave do pai
-        filho.setChave(t - 1, no.getChave(idx));
+        NoB<String> filho = no.getFilho(indice);
+        NoB<String> irmao = no.getFilho(indice + 1);
 
-        // copia chaves do irmão
-        for (int i = 0; i < irmao.getNumChaves(); i++) {
-            filho.setChave(i + t, irmao.getChave(i));
+        int nFilho = filho.getNumChaves();
+        int nIrmao = irmao.getNumChaves();
+
+        filho.setChave(nFilho, no.getChave(indice));
+
+        for (int i = 0; i < nIrmao; i++) {
+            filho.setChave(nFilho + 1 + i, irmao.getChave(i));
         }
 
-        // copia filhos
         if (!filho.getIsFolha()) {
-            for (int i = 0; i <= irmao.getNumChaves(); i++) {
-                filho.setFilho(i + t, irmao.getFilho(i));
+            for (int i = 0; i <= nIrmao; i++) {
+                filho.setFilho(nFilho + 1 + i, irmao.getFilho(i));
             }
         }
 
-        // shift no pai
-        for (int i = idx + 1; i < no.getNumChaves(); i++) {
+        for (int i = 0; i < nIrmao + 1; i++) {
+            filho.increaseNumChaves();
+        }
+
+        for (int i = indice + 1; i < no.getNumChaves(); i++) {
             no.setChave(i - 1, no.getChave(i));
         }
 
-        for (int i = idx + 2; i <= no.getNumChaves(); i++) {
+        for (int i = indice + 2; i <= no.getNumChaves(); i++) {
             no.setFilho(i - 1, no.getFilho(i));
         }
 
-        filho.increaseNumChaves(); // chave do meio
-
-        for (int i = 0; i < irmao.getNumChaves(); i++) {
-            filho.increaseNumChaves();
-        }
+        no.setChave(no.getNumChaves() - 1, null);
+        no.setFilho(no.getNumChaves(), null);
 
         no.decreaseNumChaves();
     }
 
-    public void desenharArvore(NoB<String> raiz) {
+    public void desenharArvore() {
         int h = altura(this.raiz);
-        int largura = (int) Math.pow(2, h + 2); // leve ajuste para caber nós maiores
+        int largura = (int) Math.pow(2, h + 2);
 
         String[][] mat = new String[h + 1][largura];
 
@@ -434,7 +435,7 @@ public class ArvoreB {
             }
         }
 
-        preencherMatriz(raiz, mat, 0, 0, largura - 1);
+        preencherMatriz(this.raiz, mat, 0, 0, largura - 1);
 
         for (int i = 0; i <= h; i++) {
             for (int j = 0; j < largura; j++) {
@@ -449,7 +450,6 @@ public class ArvoreB {
 
         int meio = (esq + dir) / 2;
 
-        // escreve o nó (com múltiplas chaves)
         mat[linha][meio] = noToString(no);
 
         if (no.getIsFolha()){
@@ -467,6 +467,7 @@ public class ArvoreB {
             preencherMatriz(no.getFilho(i), mat, linha + 1, novoEsq, novoDir);
         }
     }
+    
     private String noToString(NoB<String> no) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < no.getNumChaves(); i++) {
@@ -478,4 +479,9 @@ public class ArvoreB {
         sb.append("]");
         return sb.toString();
     }
+
+    public static void main(String[] args) {
+
+    }
 }
+ 
