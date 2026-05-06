@@ -1,22 +1,23 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class NoB{
+public class NoB<T extends Comparable<T>> {
 
-    private Object[] chaves;
+    private T[] chaves;
 
     private int t; // Grau ou Ordem
 
-    private NoB[] filhos; // Array de filhos
-    
+    private NoB<T>[] filhos; // Array de filhos
+
     private int numChaves; // Número atual de chaves
 
     private boolean folha;
 
+    @SuppressWarnings("unchecked")
     public NoB(int t) {
         this.t = t; // Grau ou Ordem
-        this.chaves = new Object[2 * t - 1]; // 2t – 1 chaves
-        this.filhos = new NoB[2 * t]; // 2t filhos
+        this.chaves = (T[]) new Comparable[2 * t - 1]; // 2t – 1 chaves
+        this.filhos = (NoB<T>[]) new NoB[2 * t]; // 2t filhos
         this.numChaves = 0; // Inicialmente sem chaves
         this.folha = true;
     }
@@ -25,11 +26,11 @@ public class NoB{
         return t;
     }
 
-    public void setChave(int i, Object chave) {
+    public void setChave(int i, T chave) {
         this.chaves[i] = chave;
     }
 
-    public Object getChave(int i) {
+    public T getChave(int i) {
         return chaves[i];
     }
     
@@ -37,11 +38,11 @@ public class NoB{
         return filhos.length;
     }
     
-    public void setFilho(int i, NoB filho) {
+    public void setFilho(int i, NoB<T> filho) {
         this.filhos[i] = filho;
     }
 
-    public NoB getFilho(int i) {
+    public NoB<T> getFilho(int i) {
         return filhos[i];
     }
     
