@@ -3,25 +3,25 @@ package Grafo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vertice<T> {
+public class Vertice<TV, TA> {
     
-    private T elemento;
-    private final List<Aresta<?>> arestasIncidentes;
+    private TV elemento;
+    private final List<Aresta<TV, TA>> arestasIncidentes;
 
-    public Vertice(T elemento) {
+    public Vertice(TV elemento) {
         this.elemento = elemento;
         this.arestasIncidentes = new ArrayList<>();
     }
 
-    public T getElemento() {
+    public TV getElemento() {
         return this.elemento;
     }
 
-    public void setElemento(T elemento) {
+    public void setElemento(TV elemento) {
         this.elemento = elemento;
     }
 
-    public List<Aresta<?>> getArestasIncidentes() {
+    public List<Aresta<TV, TA>> getArestasIncidentes() {
         return this.arestasIncidentes;
     }
 }

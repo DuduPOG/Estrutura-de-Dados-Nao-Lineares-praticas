@@ -1,38 +1,38 @@
 package Grafo;
 
-public class Aresta<T> {
+public class Aresta<TV, TA> {
     
-    private T elemento;
+    private TA elemento;
 
-    private final Vertice<?> origem;
-    private final Vertice<?> destino;
+    private final Vertice<TV, TA> origem;
+    private final Vertice<TV, TA> destino;
 
     private final boolean direcionada;
 
-    public Aresta(Vertice<?> origem, Vertice<?> destino, T elemento, boolean direcionada) {
+    public Aresta(Vertice<TV, TA> origem, Vertice<TV, TA> destino, TA elemento, boolean direcionada) {
         this.origem = origem;
         this.destino = destino;
         this.elemento = elemento;
         this.direcionada = direcionada;
     }
 
-    public T getElemento() {
+    public TA getElemento() {
         return this.elemento;
     }
 
-    public void setElemento(T elemento) {
+    public void setElemento(TA elemento) {
         this.elemento = elemento;
     }
 
-    public Vertice<?> getOrigem() {
+    public Vertice<TV, TA> getOrigem() {
         return this.origem;
     }
 
-    public Vertice<?> getDestino() {
+    public Vertice<TV, TA> getDestino() {
         return this.destino;
     }
 
-    public boolean isDirecionada() {
+    public boolean ehDirecionada() {
         return this.direcionada;
     }
 }
