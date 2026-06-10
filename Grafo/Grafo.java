@@ -48,12 +48,12 @@ public class Grafo<TV, TA> implements IGrafo<TV, TA> {
     }
 
     @Override
-    public void substituir(Vertice<TV, TA> v, TV x) {
+    public void substituirVertice(Vertice<TV, TA> v, TV x) {
         v.setElemento(x);
     }
 
     @Override
-    public void substituir(Aresta<TV, TA> e, TA x) {
+    public void substituirAresta(Aresta<TV, TA> e, TA x) {
         e.setElemento(x);
     }
 
