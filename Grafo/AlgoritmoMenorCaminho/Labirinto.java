@@ -19,7 +19,7 @@ import java.util.List;
  * e cada caractere da linha (0,1,2,3) vira uma coluna. Não há separador
  * entre os caracteres (igual ao exemplo do enunciado: "1111111111").
  */
-public class Maze {
+public class Labirinto {
 
     public static final int LIVRE = 0;
     public static final int PAREDE = 1;
@@ -29,10 +29,10 @@ public class Maze {
     private final int[][] grid;
     private final int rows;
     private final int cols;
-    private final Cell start;
-    private final List<Cell> exits;
+    private final Celula start;
+    private final List<Celula> exits;
 
-    public Maze(String filePath) throws IOException {
+    public Labirinto(String filePath) throws IOException {
         List<int[]> linhas = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -62,8 +62,8 @@ public class Maze {
         }
 
         this.grid = new int[rows][cols];
-        Cell startTmp = null;
-        List<Cell> exitsTmp = new ArrayList<>();
+        Celula startTmp = null;
+        List<Celula> exitsTmp = new ArrayList<>();
 
         for (int r = 0; r < rows; r++) {
             int[] linhaValores = linhas.get(r);
@@ -75,9 +75,9 @@ public class Maze {
                         throw new IllegalArgumentException(
                                 "Mais de um ponto de partida (2) encontrado no labirinto.");
                     }
-                    startTmp = new Cell(r, c);
+                    startTmp = new Celula(r, c);
                 } else if (valor == SAIDA) {
-                    exitsTmp.add(new Cell(r, c));
+                    exitsTmp.add(new Celula(r, c));
                 }
             }
         }
@@ -95,15 +95,15 @@ public class Maze {
 
     public int getRows() { return rows; }
     public int getCols() { return cols; }
-    public Cell getStart() { return start; }
-    public List<Cell> getExits() { return exits; }
+    public Celula getStart() { return start; }
+    public List<Celula> getExits() { return exits; }
 
     public boolean isWalkable(int row, int col) {
         if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
         return grid[row][col] != PAREDE;
     }
 
-    public boolean isExit(Cell cell) {
+    public boolean isExit(Celula cell) {
         return grid[cell.getRow()][cell.getCol()] == SAIDA;
     }
 
@@ -114,10 +114,10 @@ public class Maze {
     /**
      * Imprime o labirinto, marcando opcionalmente um caminho com '*'.
      */
-    public void printWithPath(List<Cell> path) {
+    public void printWithPath(List<Celula> path) {
         boolean[][] inPath = new boolean[rows][cols];
         if (path != null) {
-            for (Cell c : path) inPath[c.getRow()][c.getCol()] = true;
+            for (Celula c : path) inPath[c.getRow()][c.getCol()] = true;
         }
         StringBuilder sb = new StringBuilder();
         for (int r = 0; r < rows; r++) {

@@ -22,12 +22,12 @@ import java.util.PriorityQueue;
  * para assim que a primeira saída é retirada da fila de prioridade
  * (garantia de menor custo, já que a fila é ordenada por distância).
  */
-public class DijkstraSolver {
+public class Dijkstra {
 
     private static final int[] DR = {-1, 1, 0, 0};
     private static final int[] DC = {0, 0, -1, 1};
 
-    public PathResult solve(Maze maze) {
+    public CaminhoResultante solve(Labirinto maze) {
         long startTime = System.nanoTime();
 
         int rows = maze.getRows();
@@ -35,21 +35,21 @@ public class DijkstraSolver {
         int[][] dist = new int[rows][cols];
         for (int[] linha : dist) java.util.Arrays.fill(linha, Integer.MAX_VALUE);
 
-        Map<Cell, Cell> prev = new HashMap<>();
+        Map<Celula, Celula> prev = new HashMap<>();
         boolean[][] visitado = new boolean[rows][cols];
 
-        Cell start = maze.getStart();
+        Celula start = maze.getStart();
         dist[start.getRow()][start.getCol()] = 0;
 
         PriorityQueue<NodeDist> fila = new PriorityQueue<>();
         fila.add(new NodeDist(start, 0));
 
         int nodesExpanded = 0;
-        Cell exitFound = null;
+        Celula exitFound = null;
 
         while (!fila.isEmpty()) {
             NodeDist atual = fila.poll();
-            Cell c = atual.cell;
+            Celula c = atual.cell;
 
             if (visitado[c.getRow()][c.getCol()]) continue;
             visitado[c.getRow()][c.getCol()] = true;
@@ -69,8 +69,8 @@ public class DijkstraSolver {
                 int novoCusto = dist[c.getRow()][c.getCol()] + 1;
                 if (novoCusto < dist[nr][nc]) {
                     dist[nr][nc] = novoCusto;
-                    prev.put(new Cell(nr, nc), c);
-                    fila.add(new NodeDist(new Cell(nr, nc), novoCusto));
+                    prev.put(new Celula(nr, nc), c);
+                    fila.add(new NodeDist(new Celula(nr, nc), novoCusto));
                 }
             }
         }
@@ -78,17 +78,17 @@ public class DijkstraSolver {
         long elapsed = System.nanoTime() - startTime;
 
         if (exitFound == null) {
-            return new PathResult(Collections.emptyList(), -1, elapsed, nodesExpanded, null);
+            return new CaminhoResultante(Collections.emptyList(), -1, elapsed, nodesExpanded, null);
         }
 
-        List<Cell> caminho = reconstruirCaminho(prev, start, exitFound);
+        List<Celula> caminho = reconstruirCaminho(prev, start, exitFound);
         int custo = dist[exitFound.getRow()][exitFound.getCol()];
-        return new PathResult(caminho, custo, elapsed, nodesExpanded, exitFound);
+        return new CaminhoResultante(caminho, custo, elapsed, nodesExpanded, exitFound);
     }
 
-    private List<Cell> reconstruirCaminho(Map<Cell, Cell> prev, Cell start, Cell fim) {
-        ArrayDeque<Cell> pilha = new ArrayDeque<>();
-        Cell atual = fim;
+    private List<Celula> reconstruirCaminho(Map<Celula, Celula> prev, Celula start, Celula fim) {
+        ArrayDeque<Celula> pilha = new ArrayDeque<>();
+        Celula atual = fim;
         pilha.push(atual);
         while (!atual.equals(start)) {
             atual = prev.get(atual);
@@ -99,10 +99,10 @@ public class DijkstraSolver {
 
     /** Par (célula, distância acumulada) ordenado pela distância — usado na fila de prioridade. */
     private static class NodeDist implements Comparable<NodeDist> {
-        final Cell cell;
+        final Celula cell;
         final int dist;
 
-        NodeDist(Cell cell, int dist) {
+        NodeDist(Celula cell, int dist) {
             this.cell = cell;
             this.dist = dist;
         }

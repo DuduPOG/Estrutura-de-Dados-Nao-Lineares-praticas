@@ -17,9 +17,9 @@ public class Main {
     public static void main(String[] args) {
         String arquivo = args.length > 0 ? args[0] : "labirinto.dat";
 
-        Maze maze;
+        Labirinto maze;
         try {
-            maze = new Maze(arquivo);
+            maze = new Labirinto(arquivo);
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo '" + arquivo + "': " + e.getMessage());
             return;
@@ -33,11 +33,11 @@ public class Main {
         System.out.println("Saídas: " + maze.getExits());
         System.out.println();
 
-        DijkstraSolver dijkstra = new DijkstraSolver();
-        AStarSolver astar = new AStarSolver();
+        Dijkstra dijkstra = new Dijkstra();
+        AEstrela astar = new AEstrela();
 
-        PathResult resultDijkstra = dijkstra.solve(maze);
-        PathResult resultAStar = astar.solve(maze);
+        CaminhoResultante resultDijkstra = dijkstra.solve(maze);
+        CaminhoResultante resultAStar = astar.solve(maze);
 
         System.out.println("=== DIJKSTRA ===");
         imprimirResultado(resultDijkstra);
@@ -55,7 +55,7 @@ public class Main {
         compararResultados(resultDijkstra, resultAStar);
     }
 
-    private static void imprimirResultado(PathResult result) {
+    private static void imprimirResultado(CaminhoResultante result) {
         if (!result.isSuccess()) {
             System.out.println("Não foi encontrado caminho até nenhuma saída.");
             System.out.printf("Tempo gasto: %.4f ms%n", result.getElapsedMillis());
@@ -68,7 +68,7 @@ public class Main {
         System.out.println("Caminho: " + formatarCaminho(result.getPath()));
     }
 
-    private static String formatarCaminho(List<Cell> path) {
+    private static String formatarCaminho(List<Celula> path) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < path.size(); i++) {
             sb.append(path.get(i));
@@ -77,7 +77,7 @@ public class Main {
         return sb.toString();
     }
 
-    private static void compararResultados(PathResult dijkstra, PathResult astar) {
+    private static void compararResultados(CaminhoResultante dijkstra, CaminhoResultante astar) {
         if (!dijkstra.isSuccess() || !astar.isSuccess()) {
             System.out.println("Não é possível comparar: ao menos um algoritmo não encontrou solução.");
             return;
