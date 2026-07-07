@@ -24,92 +24,92 @@ import java.util.PriorityQueue;
  */
 public class Dijkstra {
 
-    private static final int[] DR = {-1, 1, 0, 0};
-    private static final int[] DC = {0, 0, -1, 1};
+    private static final int[] MUDANCA_LINHA = {-1, 1, 0, 0};
+    private static final int[] MUDANCA_COLUNA = {0, 0, -1, 1};
 
-    public CaminhoResultante solve(Labirinto maze) {
-        long startTime = System.nanoTime();
+    public CaminhoResultante resolver(Labirinto labirinto) {
+        long inicioTempo = System.nanoTime();
 
-        int rows = maze.getRows();
-        int cols = maze.getCols();
-        int[][] dist = new int[rows][cols];
-        for (int[] linha : dist) java.util.Arrays.fill(linha, Integer.MAX_VALUE);
+        int linhas = labirinto.getQuantidadeLinhas();
+        int colunas = labirinto.getQuantidadeColunas();
+        int[][] distancias = new int[linhas][colunas];
+        for (int[] linha : distancias) java.util.Arrays.fill(linha, Integer.MAX_VALUE);
 
-        Map<Celula, Celula> prev = new HashMap<>();
-        boolean[][] visitado = new boolean[rows][cols];
+        Map<Celula, Celula> predecessores = new HashMap<>();
+        boolean[][] visitado = new boolean[linhas][colunas];
 
-        Celula start = maze.getStart();
-        dist[start.getRow()][start.getCol()] = 0;
+        Celula inicio = labirinto.getInicio();
+        distancias[inicio.getLinha()][inicio.getColuna()] = 0;
 
-        PriorityQueue<NodeDist> fila = new PriorityQueue<>();
-        fila.add(new NodeDist(start, 0));
+        PriorityQueue<NoDistancia> filaPrioridade = new PriorityQueue<>();
+        filaPrioridade.add(new NoDistancia(inicio, 0));
 
-        int nodesExpanded = 0;
-        Celula exitFound = null;
+        int nosExpandidos = 0;
+        Celula saidaEncontrada = null;
 
-        while (!fila.isEmpty()) {
-            NodeDist atual = fila.poll();
-            Celula c = atual.cell;
+        while (!filaPrioridade.isEmpty()) {
+            NoDistancia atual = filaPrioridade.poll();
+            Celula celulaAtual = atual.celula;
 
-            if (visitado[c.getRow()][c.getCol()]) continue;
-            visitado[c.getRow()][c.getCol()] = true;
-            nodesExpanded++;
+            if (visitado[celulaAtual.getLinha()][celulaAtual.getColuna()]) continue;
+            visitado[celulaAtual.getLinha()][celulaAtual.getColuna()] = true;
+            nosExpandidos++;
 
-            if (maze.isExit(c)) {
-                exitFound = c;
+            if (labirinto.ehSaida(celulaAtual)) {
+                saidaEncontrada = celulaAtual;
                 break;
             }
 
-            for (int dir = 0; dir < 4; dir++) {
-                int nr = c.getRow() + DR[dir];
-                int nc = c.getCol() + DC[dir];
-                if (!maze.isWalkable(nr, nc)) continue;
-                if (visitado[nr][nc]) continue;
+            for (int direcao = 0; direcao < 4; direcao++) {
+                int proximaLinha = celulaAtual.getLinha() + MUDANCA_LINHA[direcao];
+                int proximaColuna = celulaAtual.getColuna() + MUDANCA_COLUNA[direcao];
+                if (!labirinto.ehAndavel(proximaLinha, proximaColuna)) continue;
+                if (visitado[proximaLinha][proximaColuna]) continue;
 
-                int novoCusto = dist[c.getRow()][c.getCol()] + 1;
-                if (novoCusto < dist[nr][nc]) {
-                    dist[nr][nc] = novoCusto;
-                    prev.put(new Celula(nr, nc), c);
-                    fila.add(new NodeDist(new Celula(nr, nc), novoCusto));
+                int novoCusto = distancias[celulaAtual.getLinha()][celulaAtual.getColuna()] + 1;
+                if (novoCusto < distancias[proximaLinha][proximaColuna]) {
+                    distancias[proximaLinha][proximaColuna] = novoCusto;
+                    predecessores.put(new Celula(proximaLinha, proximaColuna), celulaAtual);
+                    filaPrioridade.add(new NoDistancia(new Celula(proximaLinha, proximaColuna), novoCusto));
                 }
             }
         }
 
-        long elapsed = System.nanoTime() - startTime;
+        long tempoDecorrido = System.nanoTime() - inicioTempo;
 
-        if (exitFound == null) {
-            return new CaminhoResultante(Collections.emptyList(), -1, elapsed, nodesExpanded, null);
+        if (saidaEncontrada == null) {
+            return new CaminhoResultante(Collections.emptyList(), -1, tempoDecorrido, nosExpandidos, null);
         }
 
-        List<Celula> caminho = reconstruirCaminho(prev, start, exitFound);
-        int custo = dist[exitFound.getRow()][exitFound.getCol()];
-        return new CaminhoResultante(caminho, custo, elapsed, nodesExpanded, exitFound);
+        List<Celula> caminho = reconstruirCaminho(predecessores, inicio, saidaEncontrada);
+        int custo = distancias[saidaEncontrada.getLinha()][saidaEncontrada.getColuna()];
+        return new CaminhoResultante(caminho, custo, tempoDecorrido, nosExpandidos, saidaEncontrada);
     }
 
-    private List<Celula> reconstruirCaminho(Map<Celula, Celula> prev, Celula start, Celula fim) {
+    private List<Celula> reconstruirCaminho(Map<Celula, Celula> predecessores, Celula inicio, Celula fim) {
         ArrayDeque<Celula> pilha = new ArrayDeque<>();
         Celula atual = fim;
         pilha.push(atual);
-        while (!atual.equals(start)) {
-            atual = prev.get(atual);
+        while (!atual.equals(inicio)) {
+            atual = predecessores.get(atual);
             pilha.push(atual);
         }
         return new ArrayList<>(pilha);
     }
 
     /** Par (célula, distância acumulada) ordenado pela distância — usado na fila de prioridade. */
-    private static class NodeDist implements Comparable<NodeDist> {
-        final Celula cell;
-        final int dist;
+    private static class NoDistancia implements Comparable<NoDistancia> {
+        final Celula celula;
+        final int distancia;
 
-        NodeDist(Celula cell, int dist) {
-            this.cell = cell;
-            this.dist = dist;
+        NoDistancia(Celula celula, int distancia) {
+            this.celula = celula;
+            this.distancia = distancia;
         }
 
         @Override
-        public int compareTo(NodeDist o) {
-            return Integer.compare(this.dist, o.dist);
+        public int compareTo(NoDistancia outro) {
+            return Integer.compare(this.distancia, outro.distancia);
         }
     }
 }

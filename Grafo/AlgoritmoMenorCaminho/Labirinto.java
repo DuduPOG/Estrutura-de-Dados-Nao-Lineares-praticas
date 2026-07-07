@@ -26,115 +26,115 @@ public class Labirinto {
     public static final int PARTIDA = 2;
     public static final int SAIDA = 3;
 
-    private final int[][] grid;
-    private final int rows;
-    private final int cols;
-    private final Celula start;
-    private final List<Celula> exits;
+    private final int[][] grade;
+    private final int linhas;
+    private final int colunas;
+    private final Celula inicio;
+    private final List<Celula> saidas;
 
-    public Labirinto(String filePath) throws IOException {
-        List<int[]> linhas = new ArrayList<>();
+    public Labirinto(String caminhoDoArquivo) throws IOException {
+        List<int[]> linhasArquivo = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader leitor = new BufferedReader(new FileReader(caminhoDoArquivo))) {
             String linha;
-            int maxCols = 0;
-            while ((linha = br.readLine()) != null) {
+            int maxColunas = 0;
+            while ((linha = leitor.readLine()) != null) {
                 linha = linha.trim();
                 if (linha.isEmpty()) continue;
                 int[] valores = new int[linha.length()];
                 for (int i = 0; i < linha.length(); i++) {
-                    char c = linha.charAt(i);
-                    if (!Character.isDigit(c)) {
+                    char caractere = linha.charAt(i);
+                    if (!Character.isDigit(caractere)) {
                         throw new IllegalArgumentException(
-                                "Caractere inválido no arquivo .dat: '" + c + "'");
+                                "Caractere inválido no arquivo .dat: '" + caractere + "'");
                     }
-                    valores[i] = c - '0';
+                    valores[i] = caractere - '0';
                 }
-                maxCols = Math.max(maxCols, valores.length);
-                linhas.add(valores);
+                maxColunas = Math.max(maxColunas, valores.length);
+                linhasArquivo.add(valores);
             }
-            this.cols = maxCols;
+            this.colunas = maxColunas;
         }
 
-        this.rows = linhas.size();
-        if (this.rows == 0) {
+        this.linhas = linhasArquivo.size();
+        if (this.linhas == 0) {
             throw new IllegalArgumentException("Arquivo .dat vazio ou inválido.");
         }
 
-        this.grid = new int[rows][cols];
-        Celula startTmp = null;
-        List<Celula> exitsTmp = new ArrayList<>();
+        this.grade = new int[linhas][colunas];
+        Celula inicioTemporario = null;
+        List<Celula> saidasTemporarias = new ArrayList<>();
 
-        for (int r = 0; r < rows; r++) {
-            int[] linhaValores = linhas.get(r);
-            for (int c = 0; c < cols; c++) {
-                int valor = (c < linhaValores.length) ? linhaValores[c] : PAREDE;
-                grid[r][c] = valor;
+        for (int linha = 0; linha < linhas; linha++) {
+            int[] valoresDaLinha = linhasArquivo.get(linha);
+            for (int coluna = 0; coluna < colunas; coluna++) {
+                int valor = (coluna < valoresDaLinha.length) ? valoresDaLinha[coluna] : PAREDE;
+                grade[linha][coluna] = valor;
                 if (valor == PARTIDA) {
-                    if (startTmp != null) {
+                    if (inicioTemporario != null) {
                         throw new IllegalArgumentException(
                                 "Mais de um ponto de partida (2) encontrado no labirinto.");
                     }
-                    startTmp = new Celula(r, c);
+                    inicioTemporario = new Celula(linha, coluna);
                 } else if (valor == SAIDA) {
-                    exitsTmp.add(new Celula(r, c));
+                    saidasTemporarias.add(new Celula(linha, coluna));
                 }
             }
         }
 
-        if (startTmp == null) {
+        if (inicioTemporario == null) {
             throw new IllegalArgumentException("Nenhum ponto de partida (2) encontrado.");
         }
-        if (exitsTmp.isEmpty()) {
+        if (saidasTemporarias.isEmpty()) {
             throw new IllegalArgumentException("Nenhuma saída (3) encontrada.");
         }
 
-        this.start = startTmp;
-        this.exits = exitsTmp;
+        this.inicio = inicioTemporario;
+        this.saidas = saidasTemporarias;
     }
 
-    public int getRows() { return rows; }
-    public int getCols() { return cols; }
-    public Celula getStart() { return start; }
-    public List<Celula> getExits() { return exits; }
+    public int getQuantidadeLinhas() { return linhas; }
+    public int getQuantidadeColunas() { return colunas; }
+    public Celula getInicio() { return inicio; }
+    public List<Celula> getSaidas() { return saidas; }
 
-    public boolean isWalkable(int row, int col) {
-        if (row < 0 || row >= rows || col < 0 || col >= cols) return false;
-        return grid[row][col] != PAREDE;
+    public boolean ehAndavel(int linha, int coluna) {
+        if (linha < 0 || linha >= linhas || coluna < 0 || coluna >= colunas) return false;
+        return grade[linha][coluna] != PAREDE;
     }
 
-    public boolean isExit(Celula cell) {
-        return grid[cell.getRow()][cell.getCol()] == SAIDA;
+    public boolean ehSaida(Celula celula) {
+        return grade[celula.getLinha()][celula.getColuna()] == SAIDA;
     }
 
-    public int valueAt(int row, int col) {
-        return grid[row][col];
+    public int valorNaPosicao(int linha, int coluna) {
+        return grade[linha][coluna];
     }
 
     /**
      * Imprime o labirinto, marcando opcionalmente um caminho com '*'.
      */
-    public void printWithPath(List<Celula> path) {
-        boolean[][] inPath = new boolean[rows][cols];
-        if (path != null) {
-            for (Celula c : path) inPath[c.getRow()][c.getCol()] = true;
+    public void imprimirComCaminho(List<Celula> caminho) {
+        boolean[][] noCaminho = new boolean[linhas][colunas];
+        if (caminho != null) {
+            for (Celula celula : caminho) noCaminho[celula.getLinha()][celula.getColuna()] = true;
         }
         StringBuilder sb = new StringBuilder();
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                int v = grid[r][c];
-                char ch;
-                if (inPath[r][c] && v != PARTIDA && v != SAIDA) {
-                    ch = '*';
+        for (int linha = 0; linha < linhas; linha++) {
+            for (int coluna = 0; coluna < colunas; coluna++) {
+                int valor = grade[linha][coluna];
+                char caractere;
+                if (noCaminho[linha][coluna] && valor != PARTIDA && valor != SAIDA) {
+                    caractere = '*';
                 } else {
-                    switch (v) {
-                        case PAREDE: ch = '#'; break;
-                        case PARTIDA: ch = 'P'; break;
-                        case SAIDA: ch = 'S'; break;
-                        default: ch = '.'; break;
+                    switch (valor) {
+                        case PAREDE: caractere = '#'; break;
+                        case PARTIDA: caractere = 'P'; break;
+                        case SAIDA: caractere = 'S'; break;
+                        default: caractere = '.'; break;
                     }
                 }
-                sb.append(ch);
+                sb.append(caractere);
             }
             sb.append('\n');
         }
