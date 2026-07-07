@@ -6,19 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Representa o labirinto lido a partir de um arquivo .dat.
- *
- * Convenção das células (conforme especificação do trabalho):
- *   0 - caminho livre
- *   1 - parede
- *   2 - ponto de partida
- *   3 - saída do labirinto (pode haver mais de uma saída)
- *
- * O arquivo é lido linha a linha; cada linha vira uma linha da matriz,
- * e cada caractere da linha (0,1,2,3) vira uma coluna. Não há separador
- * entre os caracteres (igual ao exemplo do enunciado: "1111111111").
- */
 public class Labirinto {
 
     public static final int LIVRE = 0;
@@ -111,9 +98,6 @@ public class Labirinto {
         return grade[linha][coluna];
     }
 
-    /**
-     * Imprime o labirinto, marcando opcionalmente um caminho com '*'.
-     */
     public void imprimirComCaminho(List<Celula> caminho) {
         boolean[][] noCaminho = new boolean[linhas][colunas];
         if (caminho != null) {
