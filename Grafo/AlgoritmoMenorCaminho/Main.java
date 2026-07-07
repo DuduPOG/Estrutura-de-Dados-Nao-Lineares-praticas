@@ -3,15 +3,6 @@ package Grafo.AlgoritmoMenorCaminho;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Ponto de entrada do sistema.
- *
- * Uso:
- *   java Main caminho/para/labirinto.dat
- *
- * Se nenhum argumento for passado, tenta usar "labirinto.dat" no
- * diretório corrente.
- */
 public class Main {
 
     public static void main(String[] args) {

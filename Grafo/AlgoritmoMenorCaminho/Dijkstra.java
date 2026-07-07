@@ -8,20 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-/**
- * Algoritmo de Dijkstra aplicado a uma grade (grid) onde cada movimento
- * (cima/baixo/esquerda/direita) tem custo uniforme = 1.
- *
- * Como todas as arestas têm o mesmo peso, Dijkstra aqui se comporta de
- * forma equivalente a uma BFS, mas a implementação é mantida genérica
- * (com fila de prioridade por distância acumulada) para refletir
- * fielmente o algoritmo clássico e permitir comparação justa com A*
- * em termos de nós expandidos.
- *
- * Como o labirinto pode ter múltiplas saídas (valor 3), o algoritmo
- * para assim que a primeira saída é retirada da fila de prioridade
- * (garantia de menor custo, já que a fila é ordenada por distância).
- */
 public class Dijkstra {
 
     private static final int[] MUDANCA_LINHA = {-1, 1, 0, 0};
@@ -97,7 +83,6 @@ public class Dijkstra {
         return new ArrayList<>(pilha);
     }
 
-    /** Par (célula, distância acumulada) ordenado pela distância — usado na fila de prioridade. */
     private static class NoDistancia implements Comparable<NoDistancia> {
         final Celula celula;
         final int distancia;

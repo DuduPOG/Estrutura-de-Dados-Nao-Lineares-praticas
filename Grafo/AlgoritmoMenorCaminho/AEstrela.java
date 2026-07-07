@@ -96,8 +96,6 @@ public class AEstrela {
         }
         return new ArrayList<>(pilha);
     }
-
-    /** Par (célula, valor F) ordenado por f = g + h — usado na fila de prioridade. */
     private static class NoPrioridade implements Comparable<NoPrioridade> {
         final Celula celula;
         final int valorF;
